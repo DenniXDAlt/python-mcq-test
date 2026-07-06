@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Fundamentals — Code Trace Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0f1117;
+    --panel: #161922;
+    --panel-2: #1b1f2b;
+    --border: #2a2f3d;
+    --text: #e6e8ef;
+    --muted: #8b90a3;
+    --py-blue: #4b8bbe;
+    --py-yellow: #ffd43b;
+    --good: #4ade80;
+    --bad: #f87171;
+    --accent: #7c9eff;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(1200px 600px at 10% -10%, #16223a 0%, transparent 60%),
+                radial-gradient(1000px 500px at 100% 0%, #241a3a 0%, transparent 55%),
+                var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height:100vh;
+    line-height:1.5;
+  }
+  .wrap{
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+
+  /* ---------- Header ---------- */
+  header.top{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom: 26px;
+  }
+  .prompt-dot{
+    width:12px;height:12px;border-radius:50%;
+    background: var(--py-yellow);
+    box-shadow: 0 0 14px rgba(255,212,59,.55);
+    flex-shrink:0;
+  }
+  header.top h1{
+    font-family: var(--mono);
+    font-size: 1.15rem;
+    font-weight:700;
+    margin:0;
+    letter-spacing:.2px;
+  }
+  header.top .path{
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size:.85rem;
+  }
+
+  /* ---------- Screens ---------- */
+  .screen{display:none;}
+  .screen.active{display:block; animation: fadeIn .25s ease;}
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ---------- Home screen ---------- */
+  .hero{
+    background: linear-gradient(160deg, var(--panel) 0%, var(--panel-2) 100%);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:26px 24px;
+    margin-bottom:22px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:'>>>';
+    position:absolute;
+    right:20px; top:16px;
+    font-family:var(--mono);
+    color: rgba(124,158,255,.18);
+    font-size:2.6rem;
+    font-weight:800;
+  }
+  .hero h2{
+    margin:0 0 8px;
+    font-size:1.5rem;
+    font-family: var(--mono);
+  }
+  .hero p{
+    margin:0;
+    color:var(--muted);
+    max-width:520px;
+    font-size:.95rem;
+  }
+  .hero .stats{
+    display:flex;
+    gap:22px;
+    margin-top:18px;
+    flex-wrap:wrap;
+  }
+  .hero .stat b{
+    display:block;
+    font-family:var(--mono);
+    font-size:1.3rem;
+    color: var(--py-yellow);
+  }
+  .hero .stat span{
+    color:var(--muted);
+    font-size:.78rem;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+  }
+
+  .topic-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap:12px;
+    margin-bottom: 18px;
+  }
+  .topic-card{
+    background: var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px 16px;
+    cursor:pointer;
+    transition: border-color .15s ease, transform .15s ease, background .15s ease;
+    text-align:left;
+    position:relative;
+  }
+  .topic-card:hover{
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    background: #191d29;
+  }
+  .topic-card .num{
+    font-family: var(--mono);
+    color: var(--py-yellow);
+    font-size:.72rem;
+    letter-spacing:.5px;
+  }
+  .topic-card .name{
+    font-weight:600;
+    margin-top:4px;
+    font-size:.95rem;
+  }
+  .topic-card .count{
+    color:var(--muted);
+    font-size:.78rem;
+    margin-top:6px;
+    font-family: var(--mono);
+  }
+  .topic-card input{position:absolute; opacity:0; pointer-events:none;}
+  .topic-card.checked{
+    border-color: var(--py-blue);
+    background: #172234;
+  }
+  .topic-card.checked .name{ color:#cfe0ff; }
+  .topic-card .check{
+    position:absolute; top:12px; right:12px;
+    width:18px;height:18px;border-radius:5px;
+    border:1.5px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    font-size:.7rem;color:transparent;
+  }
+  .topic-card.checked .check{
+    border-color: var(--py-blue);
+    background: var(--py-blue);
+    color:#fff;
+  }
+
+  .mode-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .chip{
+    font-family:var(--mono);
+    font-size:.8rem;
+    padding:8px 12px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--muted);
+    cursor:pointer;
+  }
+  .chip.active{
+    background: var(--py-blue);
+    color:#fff;
+    border-color: var(--py-blue);
+  }
+
+  .btn{
+    font-family: var(--sans);
+    font-weight:700;
+    font-size:.95rem;
+    padding:13px 22px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+    background: linear-gradient(135deg, var(--py-blue), #6aa6d8);
+    color:#fff;
+    transition: filter .15s ease, transform .1s ease;
+  }
+  .btn:hover{ filter:brightness(1.1); }
+  .btn:active{ transform: scale(.98); }
+  .btn.secondary{
+    background: transparent;
+    border:1px solid var(--border);
+    color: var(--text);
+  }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; filter:none; }
+  .btn-row{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+
+  /* ---------- Quiz screen ---------- */
+  .quiz-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .q-meta{
+    font-family: var(--mono);
+    font-size:.82rem;
+    color: var(--muted);
+  }
+  .q-meta .topic-tag{
+    color: var(--py-yellow);
+  }
+  .progress-track{
+    flex:1;
+    height:6px;
+    background: var(--panel);
+    border-radius:999px;
+    overflow:hidden;
+    min-width:120px;
+    border:1px solid var(--border);
+  }
+  .progress-fill{
+    height:100%;
+    background: linear-gradient(90deg, var(--py-blue), var(--accent));
+    width:0%;
+    transition: width .3s ease;
+  }
+
+  .code-panel{
+    background: #0b0d13;
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+    margin-bottom:20px;
+  }
+  .code-titlebar{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:10px 14px;
+    background: #12141c;
+    border-bottom:1px solid var(--border);
+  }
+  .code-titlebar .dot{ width:10px;height:10px;border-radius:50%; }
+  .dot.r{background:#ff5f56;} .dot.y{background:#ffbd2e;} .dot.g{background:#27c93f;}
+  .code-titlebar .fname{
+    margin-left:8px;
+    font-family: var(--mono);
+    font-size:.75rem;
+    color: var(--muted);
+  }
+  pre.code-body{
+    margin:0;
+    padding:18px 20px;
+    font-family: var(--mono);
+    font-size: .92rem;
+    line-height:1.65;
+    overflow-x:auto;
+    color:#d6ddf5;
+    white-space:pre;
+  }
+  .q-question{
+    font-size:1.02rem;
+    font-weight:600;
+    margin:0 0 14px;
+  }
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-bottom: 22px;
+  }
+  .option{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background: var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:13px 16px;
+    cursor:pointer;
+    font-family: var(--mono);
+    font-size:.9rem;
+    text-align:left;
+    transition: border-color .12s ease, background .12s ease;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .option:hover{ border-color: var(--accent); }
+  .option .letter{
+    flex-shrink:0;
+    width:26px;height:26px;
+    border-radius:7px;
+    background: var(--panel-2);
+    border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;
+    font-size:.78rem;
+    color: var(--muted);
+  }
+  .option.selected{ border-color: var(--py-blue); background:#152033; }
+  .option.selected .letter{ background: var(--py-blue); color:#fff; border-color:var(--py-blue); }
+  .option.correct{ border-color: var(--good); background: rgba(74,222,128,.09); }
+  .option.correct .letter{ background: var(--good); color:#08130c; border-color:var(--good); }
+  .option.incorrect{ border-color: var(--bad); background: rgba(248,113,113,.09); }
+  .option.incorrect .letter{ background: var(--bad); color:#2a0d0d; border-color:var(--bad); }
+  .option.disabled{ cursor:default; }
+
+  .feedback{
+    font-family: var(--mono);
+    font-size:.85rem;
+    padding:12px 14px;
+    border-radius:10px;
+    margin-bottom:18px;
+    display:none;
+  }
+  .feedback.show{ display:block; }
+  .feedback.good{ background: rgba(74,222,128,.1); color: var(--good); border:1px solid rgba(74,222,128,.3); }
+  .feedback.bad{ background: rgba(248,113,113,.1); color: var(--bad); border:1px solid rgba(248,113,113,.3); }
+
+  /* ---------- Results screen ---------- */
+  .score-card{
+    background: linear-gradient(160deg, var(--panel) 0%, var(--panel-2) 100%);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:30px 26px;
+    text-align:center;
+    margin-bottom:24px;
+  }
+  .score-big{
+    font-family: var(--mono);
+    font-size:3.2rem;
+    font-weight:800;
+    background: linear-gradient(135deg, var(--py-yellow), var(--py-blue));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    line-height:1;
+  }
+  .score-sub{ color:var(--muted); margin-top:8px; font-size:.95rem; }
+  .verdict{
+    margin-top:14px;
+    font-weight:700;
+    font-size:1.05rem;
+  }
+
+  .breakdown{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap:10px;
+    margin-bottom:24px;
+  }
+  .bd-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .bd-card .name{ font-size:.82rem; color:var(--muted); margin-bottom:6px; }
+  .bd-bar{
+    height:6px; border-radius:999px; background:var(--panel-2); overflow:hidden; margin-bottom:6px;
+    border:1px solid var(--border);
+  }
+  .bd-fill{ height:100%; background: var(--py-blue); }
+  .bd-fill.perfect{ background: var(--good); }
+  .bd-fill.weak{ background: var(--bad); }
+  .bd-score{ font-family:var(--mono); font-size:.78rem; color:var(--muted); }
+
+  .review-item{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px 18px;
+    margin-bottom:12px;
+  }
+  .review-item .rtag{
+    font-family:var(--mono);
+    font-size:.72rem;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .review-item pre{
+    margin:0 0 10px;
+    font-family:var(--mono);
+    font-size:.82rem;
+    background:#0b0d13;
+    padding:12px 14px;
+    border-radius:8px;
+    overflow-x:auto;
+    border:1px solid var(--border);
+  }
+  .review-row{ font-family:var(--mono); font-size:.82rem; margin-top:4px; }
+  .review-row.you{ color: var(--bad); }
+  .review-row.correct{ color: var(--good); }
+
+  footer.foot{
+    text-align:center;
+    color: var(--muted);
+    font-size:.78rem;
+    margin-top:40px;
+    font-family: var(--mono);
+  }
+
+  @media (max-width:520px){
+    .score-big{ font-size:2.4rem; }
+    pre.code-body{ font-size:.82rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="prompt-dot"></div>
+    <div>
+      <h1>Python Fundamentals — Code Trace Quiz</h1>
+      <div class="path">~/IT1x13 · trace_the_output.py</div>
+    </div>
+  </header>
+
+  <!-- ================= HOME SCREEN ================= -->
+  <section class="screen active" id="screen-home">
+    <div class="hero">
+      <h2>&gt;&gt;&gt; What does this code print?</h2>
+      <p>135 multiple-choice questions across 9 topics. Every question shows you a snippet of Python — your job is to trace through it and pick the correct output or behaviour. Pick one or more topics below, then start.</p>
+      <div class="stats">
+        <div class="stat"><b>135</b><span>Total Questions</span></div>
+        <div class="stat"><b>9</b><span>Topics</span></div>
+        <div class="stat"><b>15</b><span>Per Topic</span></div>
+      </div>
+    </div>
+
+    <div class="mode-row">
+      <div class="chip active" id="chip-select-all">Select all</div>
+      <div class="chip" id="chip-clear-all">Clear all</div>
+    </div>
+
+    <div class="topic-grid" id="topic-grid"><!-- injected --></div>
+
+    <div class="mode-row">
+      <div class="chip" data-count="15">15 questions</div>
+      <div class="chip active" data-count="30">30 questions</div>
+      <div class="chip" data-count="9999">All selected</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" id="btn-start">Start Test →</button>
+      <span class="q-meta" id="selected-summary"></span>
+    </div>
+  </section>
+
+  <!-- ================= QUIZ SCREEN ================= -->
+  <section class="screen" id="screen-quiz">
+    <div class="quiz-top">
+      <div class="q-meta"><span class="topic-tag" id="q-topic-tag">Topic 1</span> · Question <span id="q-index">1</span>/<span id="q-total">15</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="q-meta">Score: <b id="q-live-score">0</b></div>
+    </div>
+
+    <p class="q-question">What does the following code print?</p>
+
+    <div class="code-panel">
+      <div class="code-titlebar">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <div class="fname" id="q-fname">snippet.py</div>
+      </div>
+      <pre class="code-body" id="q-code"></pre>
+    </div>
+
+    <div class="options" id="q-options"><!-- injected --></div>
+
+    <div class="feedback" id="q-feedback"></div>
+
+    <div class="btn-row">
+      <button class="btn" id="btn-next" disabled>Next →</button>
+      <button class="btn secondary" id="btn-quit">Quit to menu</button>
+    </div>
+  </section>
+
+  <!-- ================= RESULTS SCREEN ================= -->
+  <section class="screen" id="screen-results">
+    <div class="score-card">
+      <div class="score-big" id="res-score">0%</div>
+      <div class="score-sub" id="res-fraction">0 / 0 correct</div>
+      <div class="verdict" id="res-verdict"></div>
+    </div>
+
+    <h3 style="font-family:var(--mono); font-size:1rem;">Breakdown by topic</h3>
+    <div class="breakdown" id="res-breakdown"><!-- injected --></div>
+
+    <div class="btn-row" style="margin-bottom:24px;">
+      <button class="btn" id="btn-restart">Try Again</button>
+      <button class="btn secondary" id="btn-review-toggle">Review Answers</button>
+    </div>
+
+    <div id="res-review" style="display:none;"></div>
+  </section>
+
+  <footer class="foot">Built for exam practice · trace the code, don't guess the vibe</footer>
+</div>
+
+<script>
+const TOPIC_NAMES = {
+  1: "Introduction to Python Programming",
+  2: "Variables, Expressions & Statements",
+  3: "Input, Process & Output",
+  4: "Program Testing & Debugging",
+  5: "Computational Thinking & Problem Solving",
+  6: "Decision Control Structures",
+  7: "Loop Control Structures",
+  8: "Strings",
+  9: "Lists, Tuples & Dictionaries"
+};
+
+const QUESTIONS = [{"topic": 1, "code": "print(\"Hello, World!\")", "options": ["Hello World!", "\"Hello, World!\"", "Error", "Hello, World!"], "correct": "Hello, World!"}, {"topic": 1, "code": "print('Hello', \"World\")", "options": ["Error", "Hello, World", "Hello World", "HelloWorld"], "correct": "Hello World"}, {"topic": 1, "code": "print(\"Python\", \"is\", \"fun\", sep=\"-\")", "options": ["Python is fun", "-Python-is-fun", "Python-is-fun-", "Python-is-fun"], "correct": "Python-is-fun"}, {"topic": 1, "code": "print(5 + 3)", "options": ["53", "5 + 3", "8", "Error"], "correct": "8"}, {"topic": 1, "code": "print(\"5\" + \"3\")", "options": ["8", "5 3", "Error", "53"], "correct": "53"}, {"topic": 1, "code": "print(\"Hello\" * 3)", "options": ["Hello Hello Hello", "Error", "Hello3", "HelloHelloHello"], "correct": "HelloHelloHello"}, {"topic": 1, "code": "if True:\nprint(\"Hi\")", "options": ["SyntaxError", "Hi", "IndentationError", "NameError"], "correct": "IndentationError"}, {"topic": 1, "code": "Print(\"Hi\")", "options": ["Hi", "TypeError", "NameError", "SyntaxError"], "correct": "NameError"}, {"topic": 1, "code": "# print(\"Hello\")\nprint(\"World\")", "options": ["World", "Hello\\nWorld", "Hello", "Nothing is printed"], "correct": "World"}, {"topic": 1, "code": "x = 10 print(x)", "options": ["NameError", "runs fine, prints nothing", "SyntaxError", "10"], "correct": "SyntaxError"}, {"topic": 1, "code": "print(\"It's a test\")", "options": ["SyntaxError", "It", "Its a test", "It's a test"], "correct": "It's a test"}, {"topic": 1, "code": "print(\"Line1\\nLine2\")", "options": ["Error", "Line1 Line2", "Line1\\nLine2", "Line1\nLine2"], "correct": "Line1\nLine2"}, {"topic": 1, "code": "print(3 == 3.0)", "options": ["Error", "False", "True", "1"], "correct": "True"}, {"topic": 1, "code": "print(type(\"Hello\"))", "options": ["str", "Error", "<class 'string'>", "<class 'str'>"], "correct": "<class 'str'>"}, {"topic": 1, "code": "print(type(5))", "options": ["<class 'int'>", "<class 'integer'>", "Error", "int"], "correct": "<class 'int'>"}, {"topic": 2, "code": "x = 5\ny = 3\nprint(x + y)", "options": ["Error", "8", "35", "53"], "correct": "8"}, {"topic": 2, "code": "a = 2\na = a + 3\nprint(a)", "options": ["2", "23", "3", "5"], "correct": "5"}, {"topic": 2, "code": "x, y = 5, 10\nprint(x, y)", "options": ["10 5", "Error", "5 10", "(5, 10)"], "correct": "5 10"}, {"topic": 2, "code": "a = b = 10\nprint(a, b)", "options": ["None 10", "Error", "10 0", "10 10"], "correct": "10 10"}, {"topic": 2, "code": "x = 10\nx += 5\nprint(x)", "options": ["15", "10", "5", "105"], "correct": "15"}, {"topic": 2, "code": "x = 10\nx -= 3\nprint(x)", "options": ["7", "-3", "10", "13"], "correct": "7"}, {"topic": 2, "code": "x = 2\nx *= 3\nprint(x)", "options": ["6", "9", "23", "5"], "correct": "6"}, {"topic": 2, "code": "x = 10\nx /= 4\nprint(x)", "options": ["2", "Error", "2.0", "2.5"], "correct": "2.5"}, {"topic": 2, "code": "x = 10\nx //= 3\nprint(x)", "options": ["3.0", "1", "3", "3.33"], "correct": "3"}, {"topic": 2, "code": "x = 10\nx %= 3\nprint(x)", "options": ["0", "1", "3", "3.33"], "correct": "1"}, {"topic": 2, "code": "print(2 ** 3)", "options": ["6", "23", "8", "9"], "correct": "8"}, {"topic": 2, "code": "print(7 % 2)", "options": ["3.5", "0", "3", "1"], "correct": "1"}, {"topic": 2, "code": "print((2 + 3) * 4)", "options": ["14", "9", "20", "10"], "correct": "20"}, {"topic": 2, "code": "a = 5\nb = a\na = 10\nprint(b)", "options": ["Error", "10", "5", "15"], "correct": "5"}, {"topic": 2, "code": "x = \"5\"\ny = 5\nprint(x == y)", "options": ["False", "True", "Error", "5"], "correct": "False"}, {"topic": 3, "code": "age = input(\"Enter age: \")\nprint(type(age))", "options": ["<class 'float'>", "<class 'str'>", "Error", "<class 'int'>"], "correct": "<class 'str'>"}, {"topic": 3, "code": "age = int(input())\nprint(age + 1)", "options": ["6", "Error", "5", "51"], "correct": "6"}, {"topic": 3, "code": "print(\"Result:\", 5 + 3)", "options": ["Result: 8", "Result:8", "Result: 5 + 3", "Error"], "correct": "Result: 8"}, {"topic": 3, "code": "print(5, 3, sep=\", \")", "options": ["5,3", "5, 3,", "5, 3", "5 3"], "correct": "5, 3"}, {"topic": 3, "code": "print(\"A\", end=\"\")\nprint(\"B\")", "options": ["A B", "A\\nB", "AB", "BA"], "correct": "AB"}, {"topic": 3, "code": "name = input()\nprint(f\"Hi {name}\")", "options": ["Hi {name}", "Hi name", "Error", "Hi Sam"], "correct": "Hi Sam"}, {"topic": 3, "code": "x = float(input())\nprint(x * 2)", "options": ["5", "5.0", "2.5 2.5", "Error"], "correct": "5.0"}, {"topic": 3, "code": "print(\"The value is %d\" % 10)", "options": ["The value is 10", "The value is 10.0", "The value is %d", "Error"], "correct": "The value is 10"}, {"topic": 3, "code": "print(\"{} and {}\".format(\"cat\", \"dog\"))", "options": ["{cat} and {dog}", "cat and dog", "Error", "cat, dog"], "correct": "cat and dog"}, {"topic": 3, "code": "num = input(\"Enter: \")\nprint(num + num)", "options": ["Error", "10", "5 5", "55"], "correct": "55"}, {"topic": 3, "code": "a = input()\nb = input()\nprint(a + b)", "options": ["Error", "7", "34", "3 4"], "correct": "34"}, {"topic": 3, "code": "print(str(5) + str(5))", "options": ["5 5", "10", "55", "Error"], "correct": "55"}, {"topic": 3, "code": "print(int(\"5\") + int(\"5\"))", "options": ["Error", "55", "5 5", "10"], "correct": "10"}, {"topic": 3, "code": "print(round(3.14159, 2))", "options": ["3.0", "3.14", "3.15", "3.1"], "correct": "3.14"}, {"topic": 3, "code": "print(f\"{5 + 3}\")", "options": ["5 + 3", "8", "Error", "{5+3}"], "correct": "8"}, {"topic": 4, "code": "print(10 / 0)", "options": ["0", "ZeroDivisionError", "TypeError", "10"], "correct": "ZeroDivisionError"}, {"topic": 4, "code": "print(x)", "options": ["SyntaxError", "0", "None", "NameError"], "correct": "NameError"}, {"topic": 4, "code": "print(\"5\" + 5)", "options": ["55", "10", "TypeError", "ValueError"], "correct": "TypeError"}, {"topic": 4, "code": "print(int(\"abc\"))", "options": ["TypeError", "ValueError", "0", "abc"], "correct": "ValueError"}, {"topic": 4, "code": "lst = [1, 2, 3]\nprint(lst[5])", "options": ["None", "3", "KeyError", "IndexError"], "correct": "IndexError"}, {"topic": 4, "code": "d = {\"a\": 1}\nprint(d[\"b\"])", "options": ["IndexError", "None", "1", "KeyError"], "correct": "KeyError"}, {"topic": 4, "code": "try:\n    print(1 / 0)\nexcept ZeroDivisionError:\n    print(\"Cannot divide by zero\")", "options": ["ZeroDivisionError", "1", "0", "Cannot divide by zero"], "correct": "Cannot divide by zero"}, {"topic": 4, "code": "try:\n    x = int(\"abc\")\nexcept ValueError:\n    print(\"Invalid number\")", "options": ["Invalid number", "0", "abc", "ValueError"], "correct": "Invalid number"}, {"topic": 4, "code": "print('abc'[10])", "options": ["IndexError", "None", "empty string", "TypeError"], "correct": "IndexError"}, {"topic": 4, "code": "if True\n    print(\"Hi\")", "options": ["NameError", "SyntaxError", "IndentationError", "Hi"], "correct": "SyntaxError"}, {"topic": 4, "code": "a = 10\nb = 3\naverage = a + b / 2\nprint(average)", "options": ["11.5", "6", "6.5", "13"], "correct": "11.5"}, {"topic": 4, "code": "try:\n    print(\"Start\")\n    print(1 / 0)\nexcept ZeroDivisionError:\n    print(\"Error caught\")\nelse:\n    print(\"No error\")", "options": ["Start\nError caught", "Start\nNo error", "Error caught", "Start"], "correct": "Start\nError caught"}, {"topic": 4, "code": "try:\n    print(1 / 1)\nexcept ZeroDivisionError:\n    print(\"Error\")\nfinally:\n    print(\"Done\")", "options": ["1.0", "Done", "Error\nDone", "1.0\nDone"], "correct": "1.0\nDone"}, {"topic": 4, "code": "x = 5\nassert x > 10, \"x must be greater than 10\"", "options": ["True", "False", "5", "AssertionError"], "correct": "AssertionError"}, {"topic": 4, "code": "try:\n    lst = [1, 2]\n    print(lst[5])\nexcept IndexError:\n    print(\"Index out of range\")\nexcept:\n    print(\"Other error\")", "options": ["5", "Index out of range", "IndexError", "Other error"], "correct": "Index out of range"}, {"topic": 5, "code": "numbers = [3, 7, 2, 9, 4]\nlargest = numbers[0]\nfor n in numbers:\n    if n > largest:\n        largest = n\nprint(largest)", "options": ["4", "3", "7", "9"], "correct": "9"}, {"topic": 5, "code": "result = 1\nfor i in range(1, 5):\n    result *= i\nprint(result)", "options": ["10", "20", "24", "120"], "correct": "24"}, {"topic": 5, "code": "num = 123\ntotal = 0\nwhile num > 0:\n    total += num % 10\n    num = num // 10\nprint(total)", "options": ["123", "0", "6", "3"], "correct": "6"}, {"topic": 5, "code": "count = 0\nfor i in range(1, 20):\n    if i % 3 == 0:\n        count += 1\nprint(count)", "options": ["6", "5", "19", "7"], "correct": "6"}, {"topic": 5, "code": "a = 5\nb = 10\ntemp = a\na = b\nb = temp\nprint(a, b)", "options": ["5 5", "10 5", "10 10", "5 10"], "correct": "10 5"}, {"topic": 5, "code": "a, b = 0, 1\nfor i in range(5):\n    a, b = b, a + b\nprint(a)", "options": ["3", "8", "5", "13"], "correct": "5"}, {"topic": 5, "code": "num = 1234\nreversed_num = 0\nwhile num > 0:\n    digit = num % 10\n    reversed_num = reversed_num * 10 + digit\n    num = num // 10\nprint(reversed_num)", "options": ["1234", "1243", "4321", "4231"], "correct": "4321"}, {"topic": 5, "code": "num = 7\nif num % 2 == 0:\n    print(\"Even\")\nelse:\n    print(\"Odd\")", "options": ["True", "Even", "7", "Odd"], "correct": "Odd"}, {"topic": 5, "code": "a = 12\nb = 8\nwhile b != 0:\n    a, b = b, a % b\nprint(a)", "options": ["4", "0", "12", "8"], "correct": "4"}, {"topic": 5, "code": "total = 0\nfor i in range(1, 11):\n    if i % 2 == 0:\n        total += i\nprint(total)", "options": ["25", "30", "55", "20"], "correct": "30"}, {"topic": 5, "code": "lst = [1, 2, 3, 2, 4, 2]\ncount = 0\nfor n in lst:\n    if n == 2:\n        count += 1\nprint(count)", "options": ["4", "2", "6", "3"], "correct": "3"}, {"topic": 5, "code": "lst = [5, 2, 8, 1]\nfor i in range(len(lst) - 1):\n    if lst[i] > lst[i+1]:\n        lst[i], lst[i+1] = lst[i+1], lst[i]\nprint(lst)", "options": ["[5, 2, 8, 1]", "[2, 8, 1, 5]", "[2, 5, 1, 8]", "[1, 2, 5, 8]"], "correct": "[2, 5, 1, 8]"}, {"topic": 5, "code": "lst = [4, 2, 9, 6]\ntarget = 9\nindex = -1\nfor i in range(len(lst)):\n    if lst[i] == target:\n        index = i\n        break\nprint(index)", "options": ["-1", "3", "2", "9"], "correct": "2"}, {"topic": 5, "code": "lst = [10, 20, 30, 40]\ntotal = 0\nfor n in lst:\n    total += n\naverage = total / len(lst)\nprint(average)", "options": ["25", "25.0", "10.0", "100"], "correct": "25.0"}, {"topic": 5, "code": "n = 0\ncount = 0\nwhile n < 100:\n    n += 7\n    count += 1\nprint(count)", "options": ["7", "15", "14", "100"], "correct": "15"}, {"topic": 6, "code": "x = 10\nif x > 5:\n    print(\"Big\")\nelse:\n    print(\"Small\")", "options": ["Error", "x", "Small", "Big"], "correct": "Big"}, {"topic": 6, "code": "x = 75\nif x >= 90:\n    print(\"A\")\nelif x >= 70:\n    print(\"B\")\nelif x >= 50:\n    print(\"C\")\nelse:\n    print(\"F\")", "options": ["A", "F", "C", "B"], "correct": "B"}, {"topic": 6, "code": "x = 5\ny = 10\nif x > 0:\n    if y > 5:\n        print(\"Both positive\")\n    else:\n        print(\"Only x\")\nelse:\n    print(\"Neither\")", "options": ["Only x", "Neither", "Error", "Both positive"], "correct": "Both positive"}, {"topic": 6, "code": "x = 7\nif x > 5 and x < 10:\n    print(\"In range\")\nelse:\n    print(\"Out of range\")", "options": ["In range", "True", "Out of range", "False"], "correct": "In range"}, {"topic": 6, "code": "x = 3\nif x > 5 or x < 10:\n    print(\"Condition met\")\nelse:\n    print(\"Condition not met\")", "options": ["True", "Condition met", "False", "Condition not met"], "correct": "Condition met"}, {"topic": 6, "code": "x = True\nprint(not x)", "options": ["0", "False", "Error", "True"], "correct": "False"}, {"topic": 6, "code": "x = 5\nif 1 < x < 10:\n    print(\"Yes\")\nelse:\n    print(\"No\")", "options": ["Yes", "True", "No", "Error"], "correct": "Yes"}, {"topic": 6, "code": "x = 20\nif x > 10:\n    print(\"A\")\nif x > 15:\n    print(\"B\")\nif x > 25:\n    print(\"C\")", "options": ["A\nB", "B", "A\nB\nC", "A"], "correct": "A\nB"}, {"topic": 6, "code": "x = 8\nresult = \"Even\" if x % 2 == 0 else \"Odd\"\nprint(result)", "options": ["True", "8", "Even", "Odd"], "correct": "Even"}, {"topic": 6, "code": "name = \"Alice\"\nif name == \"Bob\":\n    print(\"Hi Bob\")\nelse:\n    print(\"Who are you?\")", "options": ["Error", "Alice", "Who are you?", "Hi Bob"], "correct": "Who are you?"}, {"topic": 6, "code": "print(True and False)", "options": ["True", "Error", "False", "None"], "correct": "False"}, {"topic": 6, "code": "print(True or False)", "options": ["False", "True", "None", "Error"], "correct": "True"}, {"topic": 6, "code": "x = 15\nif x % 2 == 0:\n    print(\"Even\")\nelif x % 3 == 0:\n    print(\"Divisible by 3\")\nelse:\n    print(\"None\")", "options": ["Even", "15", "None", "Divisible by 3"], "correct": "Divisible by 3"}, {"topic": 6, "code": "word = \"banana\"\nif \"a\" in word:\n    print(\"Found\")\nelse:\n    print(\"Not found\")", "options": ["a", "True", "Found", "Not found"], "correct": "Found"}, {"topic": 6, "code": "x = 10\nif x == 10:\n    print(\"Ten\")\nelif x == 10:\n    print(\"Also Ten\")\nelse:\n    print(\"Not Ten\")", "options": ["Ten\nAlso Ten", "Ten", "Not Ten", "Also Ten"], "correct": "Ten"}, {"topic": 7, "code": "for i in range(5):\n    print(i, end=\" \")", "options": ["1 2 3 4", "0 1 2 3 4", "0 1 2 3 4 5", "1 2 3 4 5"], "correct": "0 1 2 3 4"}, {"topic": 7, "code": "for i in range(1, 6):\n    print(i, end=\" \")", "options": ["2 3 4 5 6", "1 2 3 4", "0 1 2 3 4 5", "1 2 3 4 5"], "correct": "1 2 3 4 5"}, {"topic": 7, "code": "for i in range(10, 0, -2):\n    print(i, end=\" \")", "options": ["10 9 8 7", "10 8 6 4 2 0", "10 8 6 4 2", "0 2 4 6 8 10"], "correct": "10 8 6 4 2"}, {"topic": 7, "code": "count = 0\nwhile count < 5:\n    print(count, end=\" \")\n    count += 1", "options": ["0 1 2 3 4", "0 1 2 3 4 5", "5", "1 2 3 4 5"], "correct": "0 1 2 3 4"}, {"topic": 7, "code": "for i in range(10):\n    if i == 5:\n        break\n    print(i, end=\" \")", "options": ["0 1 2 3 4", "0 1 2 3 4 5 6 7 8 9", "5", "0 1 2 3 4 5"], "correct": "0 1 2 3 4"}, {"topic": 7, "code": "for i in range(5):\n    if i == 2:\n        continue\n    print(i, end=\" \")", "options": ["2", "0 1 3 4", "0 1 2 3 4", "0 1"], "correct": "0 1 3 4"}, {"topic": 7, "code": "for i in range(3):\n    for j in range(2):\n        print(i, j)", "options": ["0 1\n0 1\n0 1", "0 0\n0 1\n0 2", "0 0\n1 1\n2 2", "0 0\n0 1\n1 0\n1 1\n2 0\n2 1"], "correct": "0 0\n0 1\n1 0\n1 1\n2 0\n2 1"}, {"topic": 7, "code": "total = 0\nfor i in range(1, 5):\n    total += i\nprint(total)", "options": ["6", "4", "15", "10"], "correct": "10"}, {"topic": 7, "code": "word = \"cat\"\nfor ch in word:\n    print(ch, end=\"-\")", "options": ["cat", "cat-", "c-a-t-", "c-a-t"], "correct": "c-a-t-"}, {"topic": 7, "code": "x = 1\nwhile True:\n    print(x, end=\" \")\n    x += 1\n    if x > 4:\n        break", "options": ["1 2 3", "1 2 3 4 5", "4", "1 2 3 4"], "correct": "1 2 3 4"}, {"topic": 7, "code": "for i in range(3):\n    print(\"Hi\")\nelse:\n    print(\"Done\")", "options": ["Hi\nDone\nHi\nDone\nHi\nDone", "Hi\nHi\nHi", "Hi\nHi\nHi\nDone", "Done"], "correct": "Hi\nHi\nHi\nDone"}, {"topic": 7, "code": "for i in range(0, 20, 5):\n    print(i, end=\" \")", "options": ["0 5 10 15 20", "0 5 10 15", "0 4 8 12 16", "5 10 15 20"], "correct": "0 5 10 15"}, {"topic": 7, "code": "total = 0\nfor i in range(2):\n    for j in range(3):\n        total += 1\nprint(total)", "options": ["5", "6", "3", "2"], "correct": "6"}, {"topic": 7, "code": "s = \"\"\nfor i in range(3):\n    s = s + str(i)\nprint(s)", "options": ["3", "012", "210", "0 1 2"], "correct": "012"}, {"topic": 7, "code": "Which of the following loops runs forever (infinite loop)?", "options": ["for i in range(5):\n    print(i)", "for i in range(0):\n    print(i)", "while False:\n    print(\"hi\")", "while True:\n    print(\"hi\")"], "correct": "while True:\n    print(\"hi\")"}, {"topic": 8, "code": "s = \"Python\"\nprint(s[0])", "options": ["Error", "P", "n", "y"], "correct": "P"}, {"topic": 8, "code": "s = \"Python\"\nprint(s[-1])", "options": ["Error", "P", "n", "o"], "correct": "n"}, {"topic": 8, "code": "s = \"Python\"\nprint(s[1:4])", "options": ["hon", "yth", "Pyt", "ytho"], "correct": "yth"}, {"topic": 8, "code": "s = \"Python\"\nprint(s[:3])", "options": ["Pytho", "yth", "hon", "Pyt"], "correct": "Pyt"}, {"topic": 8, "code": "s = \"Python\"\nprint(s[3:])", "options": ["Pyt", "on", "hon", "tho"], "correct": "hon"}, {"topic": 8, "code": "s = \"Python\"\nprint(len(s))", "options": ["0", "5", "6", "7"], "correct": "6"}, {"topic": 8, "code": "s = \"Hello\"\nprint(s.upper())", "options": ["HELLO", "Error", "Hello", "hello"], "correct": "HELLO"}, {"topic": 8, "code": "s = \"HELLO\"\nprint(s.lower())", "options": ["HELLO", "hello", "Hello", "Error"], "correct": "hello"}, {"topic": 8, "code": "s = \"  Hi  \"\nprint(s.strip())", "options": ["  Hi  ", " Hi", "Hi  ", "Hi"], "correct": "Hi"}, {"topic": 8, "code": "s = \"Hello World\"\nprint(s.split())", "options": ["('Hello', 'World')", "Hello, World", "['Hello World']", "['Hello', 'World']"], "correct": "['Hello', 'World']"}, {"topic": 8, "code": "s = \"Hello\"\nprint(s.replace(\"l\", \"L\"))", "options": ["Hello", "HELLo", "HeLLo", "heLLo"], "correct": "HeLLo"}, {"topic": 8, "code": "s = \"Hello\"\nprint(s[::-1])", "options": ["Error", "olleH", "Hello", "oellH"], "correct": "olleH"}, {"topic": 8, "code": "s = \"Hello\" + \" \" + \"World\"\nprint(s)", "options": ["HelloWorld", "Error", "Hello World", "Hello  World"], "correct": "Hello World"}, {"topic": 8, "code": "s = \"abc\"\nprint(s * 2)", "options": ["Error", "ab cabc", "abc2", "abcabc"], "correct": "abcabc"}, {"topic": 8, "code": "s = \"Hello\"\nprint(s.find(\"l\"))", "options": ["-1", "0", "2", "3"], "correct": "2"}, {"topic": 9, "code": "lst = [1, 2, 3]\nprint(lst[0])", "options": ["3", "1", "Error", "2"], "correct": "1"}, {"topic": 9, "code": "lst = [1, 2, 3]\nlst.append(4)\nprint(lst)", "options": ["[1, 2, 3, 4]", "Error", "[4, 1, 2, 3]", "[1, 2, 3]"], "correct": "[1, 2, 3, 4]"}, {"topic": 9, "code": "lst = [1, 2, 3]\nlst.remove(2)\nprint(lst)", "options": ["[1, 2, 3]", "[1, 3]", "[2]", "[1, 2]"], "correct": "[1, 3]"}, {"topic": 9, "code": "lst = [3, 1, 2]\nlst.sort()\nprint(lst)", "options": ["[3, 1, 2]", "Error", "[1, 2, 3]", "[3, 2, 1]"], "correct": "[1, 2, 3]"}, {"topic": 9, "code": "lst = [1, 2, 3]\nprint(len(lst))", "options": ["4", "2", "3", "0"], "correct": "3"}, {"topic": 9, "code": "lst = [1, 2, 3, 4, 5]\nprint(lst[1:3])", "options": ["[2, 3, 4]", "[1, 2]", "[2, 3]", "[1, 2, 3]"], "correct": "[2, 3]"}, {"topic": 9, "code": "t = (1, 2, 3)\nprint(t[0])", "options": ["Error", "1", "2", "3"], "correct": "1"}, {"topic": 9, "code": "t = (1, 2, 3)\nt[0] = 5\nprint(t)", "options": ["IndexError", "(1, 2, 3)", "TypeError", "(5, 2, 3)"], "correct": "TypeError"}, {"topic": 9, "code": "d = {\"a\": 1, \"b\": 2}\nprint(d[\"a\"])", "options": ["1", "'a'", "2", "Error"], "correct": "1"}, {"topic": 9, "code": "d = {\"a\": 1}\nd[\"b\"] = 2\nprint(d)", "options": ["Error", "{'b': 2}", "{'a': 1}", "{'a': 1, 'b': 2}"], "correct": "{'a': 1, 'b': 2}"}, {"topic": 9, "code": "lst = [1, 2, 3]\nlst[1] = 99\nprint(lst)", "options": ["[1, 99, 3]", "[1, 2, 3]", "[99, 2, 3]", "Error"], "correct": "[1, 99, 3]"}, {"topic": 9, "code": "lst = [1, 2, 3]\nprint(3 in lst)", "options": ["3", "False", "Error", "True"], "correct": "True"}, {"topic": 9, "code": "d = {\"x\": 1, \"y\": 2}\nprint(list(d.keys()))", "options": ["['x', 'y']", "('x', 'y')", "[1, 2]", "['y', 'x']"], "correct": "['x', 'y']"}, {"topic": 9, "code": "lst = [1, 2] + [3, 4]\nprint(lst)", "options": ["[4, 6]", "[1, 2, [3, 4]]", "Error", "[1, 2, 3, 4]"], "correct": "[1, 2, 3, 4]"}, {"topic": 9, "code": "lst = [1, 2, 2, 3]\nprint(lst.count(2))", "options": ["2", "1", "0", "3"], "correct": "2"}];
+
+/* ---------------- State ---------------- */
+let selectedTopics = new Set(Object.keys(TOPIC_NAMES).map(Number));
+let questionCountMode = 30; // 15 | 30 | 9999(all)
+let quizQueue = [];
+let currentIndex = 0;
+let score = 0;
+let userAnswers = []; // {q, chosen, correct}
+let answeredCurrent = false;
+
+/* ---------------- Home screen setup ---------------- */
+const topicGrid = document.getElementById('topic-grid');
+function countForTopic(t){ return QUESTIONS.filter(q => q.topic === t).length; }
+
+function renderTopicGrid(){
+  topicGrid.innerHTML = '';
+  Object.keys(TOPIC_NAMES).map(Number).forEach(t => {
+    const card = document.createElement('div');
+    card.className = 'topic-card' + (selectedTopics.has(t) ? ' checked' : '');
+    card.innerHTML = `
+      <div class="check">✓</div>
+      <div class="num">TOPIC ${t}</div>
+      <div class="name">${TOPIC_NAMES[t]}</div>
+      <div class="count">${countForTopic(t)} questions</div>
+    `;
+    card.addEventListener('click', () => {
+      if(selectedTopics.has(t)) selectedTopics.delete(t); else selectedTopics.add(t);
+      renderTopicGrid();
+      updateSummary();
+    });
+    topicGrid.appendChild(card);
+  });
+}
+
+document.getElementById('chip-select-all').addEventListener('click', () => {
+  selectedTopics = new Set(Object.keys(TOPIC_NAMES).map(Number));
+  renderTopicGrid(); updateSummary();
+});
+document.getElementById('chip-clear-all').addEventListener('click', () => {
+  selectedTopics = new Set();
+  renderTopicGrid(); updateSummary();
+});
+
+document.querySelectorAll('.mode-row .chip[data-count]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.mode-row .chip[data-count]').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    questionCountMode = Number(chip.dataset.count);
+    updateSummary();
+  });
+});
+
+function updateSummary(){
+  const pool = QUESTIONS.filter(q => selectedTopics.has(q.topic));
+  const n = Math.min(pool.length, questionCountMode);
+  document.getElementById('selected-summary').textContent =
+    pool.length === 0 ? 'Select at least one topic' : `${n} question${n===1?'':'s'} from ${selectedTopics.size} topic${selectedTopics.size===1?'':'s'} (pool of ${pool.length})`;
+  document.getElementById('btn-start').disabled = pool.length === 0;
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+document.getElementById('btn-start').addEventListener('click', () => {
+  const pool = shuffle(QUESTIONS.filter(q => selectedTopics.has(q.topic)));
+  const n = Math.min(pool.length, questionCountMode);
+  quizQueue = pool.slice(0, n);
+  currentIndex = 0; score = 0; userAnswers = [];
+  showScreen('quiz');
+  renderQuestion();
+});
+
+/* ---------------- Quiz screen ---------------- */
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+function renderQuestion(){
+  answeredCurrent = false;
+  const q = quizQueue[currentIndex];
+  document.getElementById('q-topic-tag').textContent = 'Topic ' + q.topic + ' · ' + TOPIC_NAMES[q.topic];
+  document.getElementById('q-index').textContent = currentIndex + 1;
+  document.getElementById('q-total').textContent = quizQueue.length;
+  document.getElementById('q-live-score').textContent = score;
+  document.getElementById('progress-fill').style.width = (currentIndex / quizQueue.length * 100) + '%';
+  document.getElementById('q-code').textContent = q.code;
+  document.getElementById('q-fname').textContent = 'topic_' + q.topic + '_q' + (currentIndex+1) + '.py';
+
+  const feedback = document.getElementById('q-feedback');
+  feedback.className = 'feedback';
+  feedback.textContent = '';
+
+  const optsWrap = document.getElementById('q-options');
+  optsWrap.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<div class="letter">${letters[i]}</div><div class="opt-text">${escapeHtml(opt)}</div>`;
+    div.addEventListener('click', () => selectOption(div, opt, q));
+    optsWrap.appendChild(div);
+  });
+
+  document.getElementById('btn-next').disabled = true;
+  document.getElementById('btn-next').textContent = currentIndex === quizQueue.length - 1 ? 'Finish →' : 'Next →';
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function selectOption(div, opt, q){
+  if(answeredCurrent) return;
+  answeredCurrent = true;
+  const isCorrect = opt === q.correct;
+  if(isCorrect) score++;
+  userAnswers.push({q, chosen: opt, correct: isCorrect});
+
+  document.querySelectorAll('#q-options .option').forEach(el => {
+    el.classList.add('disabled');
+    const text = el.querySelector('.opt-text').textContent;
+    if(text === q.correct) el.classList.add('correct');
+  });
+  if(!isCorrect) div.classList.add('incorrect'); else div.classList.add('selected');
+
+  const feedback = document.getElementById('q-feedback');
+  feedback.classList.add('show', isCorrect ? 'good' : 'bad');
+  feedback.textContent = isCorrect ? '✓ Correct!' : `✗ Not quite — correct answer: ${q.correct}`;
+
+  document.getElementById('q-live-score').textContent = score;
+  document.getElementById('btn-next').disabled = false;
+}
+
+document.getElementById('btn-next').addEventListener('click', () => {
+  if(currentIndex < quizQueue.length - 1){
+    currentIndex++;
+    renderQuestion();
+  } else {
+    finishQuiz();
+  }
+});
+
+document.getElementById('btn-quit').addEventListener('click', () => {
+  if(confirm('Quit this test and return to the menu? Your progress will be lost.')){
+    showScreen('home');
+  }
+});
+
+/* ---------------- Results screen ---------------- */
+function finishQuiz(){
+  document.getElementById('progress-fill').style.width = '100%';
+  const total = quizQueue.length;
+  const pct = Math.round((score/total)*100);
+  document.getElementById('res-score').textContent = pct + '%';
+  document.getElementById('res-fraction').textContent = `${score} / ${total} correct`;
+
+  let verdict, color;
+  if(pct >= 90){ verdict = "Excellent — you're tracing code like an interpreter."; color = 'var(--good)'; }
+  else if(pct >= 70){ verdict = "Solid grasp — a bit more practice on the tricky bits."; color = 'var(--py-yellow)'; }
+  else if(pct >= 50){ verdict = "Getting there — review the topics below and retry."; color = 'var(--py-yellow)'; }
+  else { verdict = "Needs more practice — go through the review and try again."; color = 'var(--bad)'; }
+  const verdictEl = document.getElementById('res-verdict');
+  verdictEl.textContent = verdict;
+  verdictEl.style.color = color;
+
+  const byTopic = {};
+  userAnswers.forEach(a => {
+    const t = a.q.topic;
+    byTopic[t] = byTopic[t] || {correct:0, total:0};
+    byTopic[t].total++;
+    if(a.correct) byTopic[t].correct++;
+  });
+  const bd = document.getElementById('res-breakdown');
+  bd.innerHTML = '';
+  Object.keys(byTopic).map(Number).sort((a,b)=>a-b).forEach(t => {
+    const d = byTopic[t];
+    const p = Math.round((d.correct/d.total)*100);
+    const cls = p === 100 ? 'perfect' : (p < 50 ? 'weak' : '');
+    const div = document.createElement('div');
+    div.className = 'bd-card';
+    div.innerHTML = `
+      <div class="name">Topic ${t}: ${TOPIC_NAMES[t]}</div>
+      <div class="bd-bar"><div class="bd-fill ${cls}" style="width:${p}%"></div></div>
+      <div class="bd-score">${d.correct}/${d.total} (${p}%)</div>
+    `;
+    bd.appendChild(div);
+  });
+
+  renderReview();
+  showScreen('results');
+}
+
+function renderReview(){
+  const wrap = document.getElementById('res-review');
+  wrap.innerHTML = '';
+  userAnswers.forEach((a, i) => {
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    div.innerHTML = `
+      <div class="rtag">Q${i+1} · Topic ${a.q.topic}: ${TOPIC_NAMES[a.q.topic]} ${a.correct ? '✓' : '✗'}</div>
+      <pre>${escapeHtml(a.q.code)}</pre>
+      <div class="review-row ${a.correct ? 'correct' : 'you'}">Your answer: ${escapeHtml(a.chosen)}</div>
+      ${a.correct ? '' : `<div class="review-row correct">Correct answer: ${escapeHtml(a.q.correct)}</div>`}
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+document.getElementById('btn-review-toggle').addEventListener('click', (e) => {
+  const rev = document.getElementById('res-review');
+  const showing = rev.style.display !== 'none';
+  rev.style.display = showing ? 'none' : 'block';
+  e.target.textContent = showing ? 'Review Answers' : 'Hide Review';
+});
+
+document.getElementById('btn-restart').addEventListener('click', () => {
+  showScreen('home');
+});
+
+/* ---------------- Init ---------------- */
+renderTopicGrid();
+updateSummary();
+</script>
+</body>
+</html>
