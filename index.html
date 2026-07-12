@@ -541,6 +541,40 @@
     font-size:.85em;
   }
 
+  .pg-editor{
+    width:100%;
+    min-height: 220px;
+    resize: vertical;
+    background: #0b0d13;
+    color:#d6ddf5;
+    font-family: var(--mono);
+    font-size:.92rem;
+    line-height:1.6;
+    border:none;
+    padding:18px 20px;
+    outline:none;
+    box-sizing:border-box;
+  }
+  .pg-output{
+    color:#d6ddf5;
+    min-height:60px;
+  }
+  .pg-output.pg-error{ color: var(--bad); }
+  .pg-output.pg-loading{ color: var(--py-yellow); }
+  .try-it-btn{
+    font-family: var(--mono);
+    font-size:.75rem;
+    padding:6px 12px;
+    border-radius:7px;
+    border:1px solid var(--border);
+    background: transparent;
+    color: var(--py-blue);
+    cursor:pointer;
+    margin-top:8px;
+    display:inline-block;
+  }
+  .try-it-btn:hover{ border-color: var(--py-blue); background: rgba(75,139,190,.1); }
+
   footer.foot{
     text-align:center;
     color: var(--muted);
@@ -594,6 +628,7 @@
     <div class="btn-row">
       <button class="btn" id="btn-start">Start Test →</button>
       <button class="btn secondary" id="btn-open-notes">📖 Study Notes</button>
+      <button class="btn secondary" id="btn-open-playground">🧪 Code Playground</button>
       <span class="q-meta" id="selected-summary"></span>
     </div>
   </section>
@@ -607,6 +642,38 @@
     <div id="notes-list"><!-- injected --></div>
     <div class="btn-row" style="margin-top:10px;">
       <button class="btn secondary" id="btn-notes-back">← Back to menu</button>
+    </div>
+  </section>
+
+  <!-- ================= PLAYGROUND SCREEN ================= -->
+  <section class="screen" id="screen-playground">
+    <div class="hero" style="margin-bottom:18px;">
+      <h2>&gt;&gt;&gt; Code Playground</h2>
+      <p>Write real Python and run it right here in your browser — powered by an actual Python runtime (Pyodide), not a simulation. The first run needs an internet connection to download the runtime (~10-20s); after that it's instant.</p>
+    </div>
+
+    <div class="code-panel">
+      <div class="code-titlebar">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <div class="fname">playground.py</div>
+      </div>
+      <textarea id="pg-editor" class="pg-editor" spellcheck="false"># Write your Python code here, then click Run
+print("Hello, World!")</textarea>
+    </div>
+
+    <div class="btn-row" style="margin:14px 0;">
+      <button class="btn" id="pg-run">▶ Run Code</button>
+      <button class="btn secondary" id="pg-clear">Clear</button>
+      <button class="btn secondary" id="btn-playground-back">← Back</button>
+      <span class="q-meta" id="pg-status"></span>
+    </div>
+
+    <div class="code-panel">
+      <div class="code-titlebar">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <div class="fname">output</div>
+      </div>
+      <pre class="code-body pg-output" id="pg-output">Output will appear here after you click Run.</pre>
     </div>
   </section>
 
@@ -1099,7 +1166,8 @@ function selectOption(div, opt, q){
   feedback.classList.add('show', isCorrect ? 'good' : 'bad');
   const headline = isCorrect ? '✓ Correct!' : `✗ Not quite — correct answer: ${q.correct}`;
   const explanation = q.explanation ? `<div class="explain-box"><b>Why:</b> ${escapeHtml(q.explanation)}</div>` : '';
-  feedback.innerHTML = `<div>${escapeHtml(headline)}</div>${explanation}`;
+  feedback.innerHTML = `<div>${escapeHtml(headline)}</div>${explanation}<button class="try-it-btn" id="q-try-it">▶ Try this code yourself</button>`;
+  document.getElementById('q-try-it').addEventListener('click', () => openInPlayground(q.code, 'quiz'));
 
   document.getElementById('q-live-score').textContent = score;
   document.getElementById('btn-next').disabled = false;
@@ -1176,8 +1244,12 @@ function renderReview(){
       <div class="review-row ${a.correct ? 'correct' : 'you'}">Your answer: ${escapeHtml(a.chosen)}</div>
       ${a.correct ? '' : `<div class="review-row correct">Correct answer: ${escapeHtml(a.q.correct)}</div>`}
       ${a.q.explanation ? `<div class="explain-box" style="margin-top:8px;"><b>Why:</b> ${escapeHtml(a.q.explanation)}</div>` : ''}
+      <button class="try-it-btn" data-code="${encodeURIComponent(a.q.code)}">▶ Try this code yourself</button>
     `;
     wrap.appendChild(div);
+  });
+  wrap.querySelectorAll('.try-it-btn').forEach(btn => {
+    btn.addEventListener('click', () => openInPlayground(decodeURIComponent(btn.dataset.code), 'results'));
   });
 }
 
@@ -1191,6 +1263,101 @@ document.getElementById('btn-review-toggle').addEventListener('click', (e) => {
 document.getElementById('btn-restart').addEventListener('click', () => {
   showScreen('home');
 });
+
+/* ---------------- Code Playground (Pyodide) ---------------- */
+let pyodideInstance = null;
+let pyodideLoadingPromise = null;
+let playgroundReturnScreen = 'home';
+
+function loadPyodideScript(){
+  return new Promise((resolve, reject) => {
+    if(window.loadPyodide){ resolve(); return; }
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Could not load the Python runtime — check your internet connection.'));
+    document.head.appendChild(script);
+  });
+}
+
+async function ensurePyodide(statusEl){
+  if(pyodideInstance) return pyodideInstance;
+  if(!pyodideLoadingPromise){
+    pyodideLoadingPromise = (async () => {
+      if(statusEl) statusEl.textContent = 'Downloading Python runtime… (first time only)';
+      await loadPyodideScript();
+      const inst = await loadPyodide();
+      pyodideInstance = inst;
+      return inst;
+    })();
+  }
+  return pyodideLoadingPromise;
+}
+
+async function runPlaygroundCode(){
+  const editor = document.getElementById('pg-editor');
+  const output = document.getElementById('pg-output');
+  const status = document.getElementById('pg-status');
+  const runBtn = document.getElementById('pg-run');
+
+  runBtn.disabled = true;
+  output.className = 'code-body pg-output pg-loading';
+  output.textContent = 'Running…';
+
+  try{
+    const pyodide = await ensurePyodide(status);
+    status.textContent = '';
+    let buf = [];
+    pyodide.setStdout({ batched: (s) => buf.push(s) });
+    pyodide.setStderr({ batched: (s) => buf.push(s) });
+    try{
+      await pyodide.runPythonAsync(editor.value);
+      output.className = 'code-body pg-output';
+      output.textContent = buf.join('\n') || '(no output)';
+    }catch(err){
+      output.className = 'code-body pg-output pg-error';
+      const msg = String(err.message || err);
+      // Trim Pyodide's internal traceback noise, keep the Python-relevant part
+      const lines = msg.split('\n').filter(l => l.trim() !== '');
+      output.textContent = (buf.length ? buf.join('\n') + '\n' : '') + lines.slice(-1)[0] || msg;
+    }
+  }catch(loadErr){
+    output.className = 'code-body pg-output pg-error';
+    output.textContent = 'Error: ' + loadErr.message;
+    status.textContent = '';
+  }
+  runBtn.disabled = false;
+}
+
+document.getElementById('pg-run').addEventListener('click', runPlaygroundCode);
+document.getElementById('pg-clear').addEventListener('click', () => {
+  document.getElementById('pg-editor').value = '';
+  document.getElementById('pg-output').textContent = 'Output will appear here after you click Run.';
+  document.getElementById('pg-output').className = 'code-body pg-output';
+});
+document.getElementById('pg-editor').addEventListener('keydown', (e) => {
+  if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+    e.preventDefault();
+    runPlaygroundCode();
+  }
+});
+
+document.getElementById('btn-open-playground').addEventListener('click', () => {
+  playgroundReturnScreen = 'home';
+  showScreen('playground');
+});
+document.getElementById('btn-playground-back').addEventListener('click', () => {
+  showScreen(playgroundReturnScreen);
+});
+
+function openInPlayground(code, returnScreen){
+  playgroundReturnScreen = returnScreen;
+  document.getElementById('pg-editor').value = code;
+  document.getElementById('pg-output').textContent = 'Output will appear here after you click Run.';
+  document.getElementById('pg-output').className = 'code-body pg-output';
+  document.getElementById('pg-status').textContent = '';
+  showScreen('playground');
+}
 
 /* ---------------- Notes screen ---------------- */
 function renderNotes(){
@@ -1212,6 +1379,7 @@ function renderNotes(){
           <pre class="code-body">${escapeHtml(c.code)}</pre>
         </div>
         <div class="note-output"><span class="out-label">Output</span>${escapeHtml(c.output)}</div>
+        <button class="try-it-btn" data-code="${encodeURIComponent(c.code)}">▶ Try it yourself</button>
       ` : '';
       return `
         <div class="concept-block">
@@ -1227,6 +1395,14 @@ function renderNotes(){
       <div class="note-body">${blocks}</div>
     `;
     list.appendChild(details);
+  });
+
+  list.querySelectorAll('.try-it-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const code = decodeURIComponent(btn.dataset.code);
+      openInPlayground(code, 'notes');
+    });
   });
 }
 
