@@ -417,7 +417,7 @@
     overflow-x:auto;
     border:1px solid var(--border);
   }
-  .review-row{ font-family:var(--mono); font-size:.82rem; margin-top:4px; }
+  .review-row{ font-family:var(--mono); font-size:.82rem; margin-top:4px; white-space:pre-wrap; }
   .review-row.you{ color: var(--bad); }
   .review-row.correct{ color: var(--good); }
 
@@ -613,6 +613,12 @@
     </div>
 
     <div class="mode-row">
+      <div class="chip active" id="set-chip-1" data-set="1">📝 Trace the Output</div>
+      <div class="chip" id="set-chip-2" data-set="2">🧩 Complete the Code &amp; Concepts</div>
+    </div>
+    <p class="q-meta" id="set-description" style="margin:-6px 0 14px;">Read the code and predict exactly what it prints or how it behaves.</p>
+
+    <div class="mode-row">
       <div class="chip active" id="chip-select-all">Select all</div>
       <div class="chip" id="chip-clear-all">Clear all</div>
     </div>
@@ -685,9 +691,9 @@ print("Hello, World!")</textarea>
       <div class="q-meta">Score: <b id="q-live-score">0</b></div>
     </div>
 
-    <p class="q-question">What does the following code print?</p>
+    <p class="q-question" id="q-question-text">What does the following code print?</p>
 
-    <div class="code-panel">
+    <div class="code-panel" id="q-code-panel">
       <div class="code-titlebar">
         <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
         <div class="fname" id="q-fname">snippet.py</div>
@@ -740,7 +746,1192 @@ const TOPIC_NAMES = {
   9: "Lists, Tuples & Dictionaries"
 };
 
-const QUESTIONS = [{"topic": 1, "code": "print(\"Hello, World!\")", "options": ["Hello World!", "\"Hello, World!\"", "Error", "Hello, World!"], "correct": "Hello, World!", "explanation": "print() with a plain string just outputs the text between the quotes, without the quote marks themselves."}, {"topic": 1, "code": "print('Hello', \"World\")", "options": ["Error", "Hello, World", "Hello World", "HelloWorld"], "correct": "Hello World", "explanation": "print() joins multiple comma-separated arguments with a single space by default."}, {"topic": 1, "code": "print(\"Python\", \"is\", \"fun\", sep=\"-\")", "options": ["Python is fun", "-Python-is-fun", "Python-is-fun-", "Python-is-fun"], "correct": "Python-is-fun", "explanation": "The sep parameter changes the separator placed between printed arguments \u2014 here '-' replaces the default space."}, {"topic": 1, "code": "print(5 + 3)", "options": ["53", "5 + 3", "8", "Error"], "correct": "8", "explanation": "Both operands are numbers, so + performs arithmetic addition: 5 + 3 = 8."}, {"topic": 1, "code": "print(\"5\" + \"3\")", "options": ["8", "5 3", "Error", "53"], "correct": "53", "explanation": "Both operands are strings, so + performs concatenation (joining text) instead of arithmetic: \"5\"+\"3\" = \"53\"."}, {"topic": 1, "code": "print(\"Hello\" * 3)", "options": ["Hello Hello Hello", "Error", "Hello3", "HelloHelloHello"], "correct": "HelloHelloHello", "explanation": "The * operator on a string repeats it that many times: \"Hello\"*3 = \"HelloHelloHello\"."}, {"topic": 1, "code": "if True:\nprint(\"Hi\")", "options": ["SyntaxError", "Hi", "IndentationError", "NameError"], "correct": "IndentationError", "explanation": "Python uses indentation to define code blocks. A statement after ':' with no indentation raises IndentationError."}, {"topic": 1, "code": "Print(\"Hi\")", "options": ["Hi", "TypeError", "NameError", "SyntaxError"], "correct": "NameError", "explanation": "Python is case-sensitive \u2014 print and Print are different names. Since Print isn't defined, this raises NameError."}, {"topic": 1, "code": "# print(\"Hello\")\nprint(\"World\")", "options": ["World", "Hello\\nWorld", "Hello", "Nothing is printed"], "correct": "World", "explanation": "A line starting with # is a comment and is ignored entirely by Python; only the next print() line runs."}, {"topic": 1, "code": "x = 10 print(x)", "options": ["NameError", "runs fine, prints nothing", "SyntaxError", "10"], "correct": "SyntaxError", "explanation": "Two statements can't sit on the same line without a semicolon (;) between them \u2014 this raises SyntaxError."}, {"topic": 1, "code": "print(\"It's a test\")", "options": ["SyntaxError", "It", "Its a test", "It's a test"], "correct": "It's a test", "explanation": "Using double quotes lets you include an apostrophe inside the string without needing to escape it."}, {"topic": 1, "code": "print(\"Line1\\nLine2\")", "options": ["Error", "Line1 Line2", "Line1\\nLine2", "Line1\nLine2"], "correct": "Line1\nLine2", "explanation": "\\n inside a string is the newline escape character, so it prints as an actual line break."}, {"topic": 1, "code": "print(3 == 3.0)", "options": ["Error", "False", "True", "1"], "correct": "True", "explanation": "== compares values, not types. 3 and 3.0 have equal value, so 3 == 3.0 evaluates to True."}, {"topic": 1, "code": "print(type(\"Hello\"))", "options": ["str", "Error", "<class 'string'>", "<class 'str'>"], "correct": "<class 'str'>", "explanation": "type() reveals an object's data type \u2014 a value in quotes is a str."}, {"topic": 1, "code": "print(type(5))", "options": ["<class 'int'>", "<class 'integer'>", "Error", "int"], "correct": "<class 'int'>", "explanation": "type() reveals an object's data type \u2014 a whole number literal is an int."}, {"topic": 2, "code": "x = 5\ny = 3\nprint(x + y)", "options": ["Error", "8", "35", "53"], "correct": "8", "explanation": "Values are substituted into their variables, then added: 5 + 3 = 8."}, {"topic": 2, "code": "a = 2\na = a + 3\nprint(a)", "options": ["2", "23", "3", "5"], "correct": "5", "explanation": "a is reassigned to its old value plus 3: 2 + 3 = 5."}, {"topic": 2, "code": "x, y = 5, 10\nprint(x, y)", "options": ["10 5", "Error", "5 10", "(5, 10)"], "correct": "5 10", "explanation": "Multiple assignment unpacks values in order: x gets 5, y gets 10."}, {"topic": 2, "code": "a = b = 10\nprint(a, b)", "options": ["None 10", "Error", "10 0", "10 10"], "correct": "10 10", "explanation": "Chained assignment (a = b = 10) assigns the same value 10 to both a and b."}, {"topic": 2, "code": "x = 10\nx += 5\nprint(x)", "options": ["15", "10", "5", "105"], "correct": "15", "explanation": "+= adds to the existing value and reassigns: 10 + 5 = 15."}, {"topic": 2, "code": "x = 10\nx -= 3\nprint(x)", "options": ["7", "-3", "10", "13"], "correct": "7", "explanation": "-= subtracts from the existing value and reassigns: 10 - 3 = 7."}, {"topic": 2, "code": "x = 2\nx *= 3\nprint(x)", "options": ["6", "9", "23", "5"], "correct": "6", "explanation": "*= multiplies the existing value and reassigns: 2 * 3 = 6."}, {"topic": 2, "code": "x = 10\nx /= 4\nprint(x)", "options": ["2", "Error", "2.0", "2.5"], "correct": "2.5", "explanation": "/= is true division and always returns a float, even when the result is a whole number: 10/4 = 2.5."}, {"topic": 2, "code": "x = 10\nx //= 3\nprint(x)", "options": ["3.0", "1", "3", "3.33"], "correct": "3", "explanation": "//= is floor division \u2014 it divides then rounds down to the nearest whole number: 10//3 = 3."}, {"topic": 2, "code": "x = 10\nx %= 3\nprint(x)", "options": ["0", "1", "3", "3.33"], "correct": "1", "explanation": "%= gives the remainder of division: 10 % 3 = 1."}, {"topic": 2, "code": "print(2 ** 3)", "options": ["6", "23", "8", "9"], "correct": "8", "explanation": "** is the exponent (power) operator: 2 ** 3 = 2\u00d72\u00d72 = 8."}, {"topic": 2, "code": "print(7 % 2)", "options": ["3.5", "0", "3", "1"], "correct": "1", "explanation": "% returns the remainder after division: 7 % 2 = 1."}, {"topic": 2, "code": "print((2 + 3) * 4)", "options": ["14", "9", "20", "10"], "correct": "20", "explanation": "Parentheses are evaluated first: (2+3)=5, then 5*4=20."}, {"topic": 2, "code": "a = 5\nb = a\na = 10\nprint(b)", "options": ["Error", "10", "5", "15"], "correct": "5", "explanation": "Assigning b = a copies the value at that moment. Later changing a does not affect b, since numbers are immutable."}, {"topic": 2, "code": "x = \"5\"\ny = 5\nprint(x == y)", "options": ["False", "True", "Error", "5"], "correct": "False", "explanation": "== checks both value and type compatibility in Python's comparison rules; \"5\" (str) and 5 (int) are different types, so the comparison is False."}, {"topic": 3, "code": "age = input(\"Enter age: \")\nprint(type(age))", "options": ["<class 'float'>", "<class 'str'>", "Error", "<class 'int'>"], "correct": "<class 'str'>", "explanation": "input() always returns a string, regardless of what the user types \u2014 even if they type a number."}, {"topic": 3, "code": "age = int(input())\nprint(age + 1)", "options": ["6", "Error", "5", "51"], "correct": "6", "explanation": "int(input()) converts the typed text to an integer before doing arithmetic: 5 + 1 = 6."}, {"topic": 3, "code": "print(\"Result:\", 5 + 3)", "options": ["Result: 8", "Result:8", "Result: 5 + 3", "Error"], "correct": "Result: 8", "explanation": "print() separates comma-separated arguments with a space, and prefixes them with the literal text given."}, {"topic": 3, "code": "print(5, 3, sep=\", \")", "options": ["5,3", "5, 3,", "5, 3", "5 3"], "correct": "5, 3", "explanation": "The sep parameter controls what appears between printed items \u2014 here \", \" is used instead of the default space."}, {"topic": 3, "code": "print(\"A\", end=\"\")\nprint(\"B\")", "options": ["A B", "A\\nB", "AB", "BA"], "correct": "AB", "explanation": "end=\"\" replaces the default trailing newline with an empty string, so the next print() continues on the same line."}, {"topic": 3, "code": "name = input()\nprint(f\"Hi {name}\")", "options": ["Hi {name}", "Hi name", "Error", "Hi Sam"], "correct": "Hi Sam", "explanation": "An f-string (f\"...\") substitutes {name} with the variable's current value directly into the string."}, {"topic": 3, "code": "x = float(input())\nprint(x * 2)", "options": ["5", "5.0", "2.5 2.5", "Error"], "correct": "5.0", "explanation": "float(input()) converts the typed text to a decimal number before the multiplication: 2.5 * 2 = 5.0."}, {"topic": 3, "code": "print(\"The value is %d\" % 10)", "options": ["The value is 10", "The value is 10.0", "The value is %d", "Error"], "correct": "The value is 10", "explanation": "%d is old-style string formatting that inserts an integer value in place of %d."}, {"topic": 3, "code": "print(\"{} and {}\".format(\"cat\", \"dog\"))", "options": ["{cat} and {dog}", "cat and dog", "Error", "cat, dog"], "correct": "cat and dog", "explanation": "\"{}\".format(...) fills each {} placeholder with the corresponding argument, in order."}, {"topic": 3, "code": "num = input(\"Enter: \")\nprint(num + num)", "options": ["Error", "10", "5 5", "55"], "correct": "55", "explanation": "input() returns a string, so + concatenates the text rather than adding numbers: \"5\"+\"5\" = \"55\"."}, {"topic": 3, "code": "a = input()\nb = input()\nprint(a + b)", "options": ["Error", "7", "34", "3 4"], "correct": "34", "explanation": "Since both inputs are strings, + joins them end-to-end: \"3\"+\"4\" = \"34\"."}, {"topic": 3, "code": "print(str(5) + str(5))", "options": ["5 5", "10", "55", "Error"], "correct": "55", "explanation": "str(5) converts the integer to the string \"5\", then + concatenates: \"5\"+\"5\" = \"55\"."}, {"topic": 3, "code": "print(int(\"5\") + int(\"5\"))", "options": ["Error", "55", "5 5", "10"], "correct": "10", "explanation": "int(\"5\") converts the string to the integer 5, so + adds numerically: 5+5 = 10."}, {"topic": 3, "code": "print(round(3.14159, 2))", "options": ["3.0", "3.14", "3.15", "3.1"], "correct": "3.14", "explanation": "round(number, 2) rounds to 2 decimal places: 3.14159 \u2192 3.14."}, {"topic": 3, "code": "print(f\"{5 + 3}\")", "options": ["5 + 3", "8", "Error", "{5+3}"], "correct": "8", "explanation": "Inside an f-string, {5+3} is evaluated as an expression before being inserted, giving 8."}, {"topic": 4, "code": "print(10 / 0)", "options": ["0", "ZeroDivisionError", "TypeError", "10"], "correct": "ZeroDivisionError", "explanation": "Dividing by zero is mathematically undefined, so Python raises ZeroDivisionError."}, {"topic": 4, "code": "print(x)", "options": ["SyntaxError", "0", "None", "NameError"], "correct": "NameError", "explanation": "Referring to a variable that was never assigned raises NameError."}, {"topic": 4, "code": "print(\"5\" + 5)", "options": ["55", "10", "TypeError", "ValueError"], "correct": "TypeError", "explanation": "You can't add a string and an int directly \u2014 mixing incompatible types in + raises TypeError."}, {"topic": 4, "code": "print(int(\"abc\"))", "options": ["TypeError", "ValueError", "0", "abc"], "correct": "ValueError", "explanation": "int() can't convert non-numeric text like \"abc\" into a number, so it raises ValueError."}, {"topic": 4, "code": "lst = [1, 2, 3]\nprint(lst[5])", "options": ["None", "3", "KeyError", "IndexError"], "correct": "IndexError", "explanation": "Accessing a list position that doesn't exist raises IndexError."}, {"topic": 4, "code": "d = {\"a\": 1}\nprint(d[\"b\"])", "options": ["IndexError", "None", "1", "KeyError"], "correct": "KeyError", "explanation": "Accessing a dictionary key that doesn't exist raises KeyError."}, {"topic": 4, "code": "try:\n    print(1 / 0)\nexcept ZeroDivisionError:\n    print(\"Cannot divide by zero\")", "options": ["ZeroDivisionError", "1", "0", "Cannot divide by zero"], "correct": "Cannot divide by zero", "explanation": "The try block raises ZeroDivisionError, which is caught by the matching except clause and handled."}, {"topic": 4, "code": "try:\n    x = int(\"abc\")\nexcept ValueError:\n    print(\"Invalid number\")", "options": ["Invalid number", "0", "abc", "ValueError"], "correct": "Invalid number", "explanation": "int(\"abc\") raises ValueError, which is caught by the except ValueError block."}, {"topic": 4, "code": "print('abc'[10])", "options": ["IndexError", "None", "empty string", "TypeError"], "correct": "IndexError", "explanation": "Indexing a string beyond its length raises IndexError, just like it does for lists."}, {"topic": 4, "code": "if True\n    print(\"Hi\")", "options": ["NameError", "SyntaxError", "IndentationError", "Hi"], "correct": "SyntaxError", "explanation": "An if statement's condition line must end with a colon \u2014 omitting it raises SyntaxError."}, {"topic": 4, "code": "a = 10\nb = 3\naverage = a + b / 2\nprint(average)", "options": ["11.5", "6", "6.5", "13"], "correct": "11.5", "explanation": "Division (/) happens before addition (+) due to operator precedence: 3/2=1.5, then 10+1.5=11.5."}, {"topic": 4, "code": "try:\n    print(\"Start\")\n    print(1 / 0)\nexcept ZeroDivisionError:\n    print(\"Error caught\")\nelse:\n    print(\"No error\")", "options": ["Start\nError caught", "Start\nNo error", "Error caught", "Start"], "correct": "Start\nError caught", "explanation": "The else block after try/except only runs if no exception occurred in the try block."}, {"topic": 4, "code": "try:\n    print(1 / 1)\nexcept ZeroDivisionError:\n    print(\"Error\")\nfinally:\n    print(\"Done\")", "options": ["1.0", "Done", "Error\nDone", "1.0\nDone"], "correct": "1.0\nDone", "explanation": "The finally block always executes, whether or not an exception occurred."}, {"topic": 4, "code": "x = 5\nassert x > 10, \"x must be greater than 10\"", "options": ["True", "False", "5", "AssertionError"], "correct": "AssertionError", "explanation": "assert checks a condition and raises AssertionError if it's False \u2014 here 5 > 10 is False."}, {"topic": 4, "code": "try:\n    lst = [1, 2]\n    print(lst[5])\nexcept IndexError:\n    print(\"Index out of range\")\nexcept:\n    print(\"Other error\")", "options": ["5", "Index out of range", "IndexError", "Other error"], "correct": "Index out of range", "explanation": "Python checks except clauses in order and uses the first matching one \u2014 IndexError is caught before the generic except."}, {"topic": 5, "code": "numbers = [3, 7, 2, 9, 4]\nlargest = numbers[0]\nfor n in numbers:\n    if n > largest:\n        largest = n\nprint(largest)", "options": ["4", "3", "7", "9"], "correct": "9", "explanation": "The loop compares each number to the current largest and updates it whenever a bigger value is found."}, {"topic": 5, "code": "result = 1\nfor i in range(1, 5):\n    result *= i\nprint(result)", "options": ["10", "20", "24", "120"], "correct": "24", "explanation": "Multiplying result by each number from 1 to 4 computes 4! = 1\u00d72\u00d73\u00d74 = 24."}, {"topic": 5, "code": "num = 123\ntotal = 0\nwhile num > 0:\n    total += num % 10\n    num = num // 10\nprint(total)", "options": ["123", "0", "6", "3"], "correct": "6", "explanation": "Repeatedly taking num%10 extracts the last digit, and num//10 removes it, summing all digits: 1+2+3=6."}, {"topic": 5, "code": "count = 0\nfor i in range(1, 20):\n    if i % 3 == 0:\n        count += 1\nprint(count)", "options": ["6", "5", "19", "7"], "correct": "6", "explanation": "The loop counts how many numbers from 1\u201319 are divisible by 3: 3,6,9,12,15,18 \u2192 6 numbers."}, {"topic": 5, "code": "a = 5\nb = 10\ntemp = a\na = b\nb = temp\nprint(a, b)", "options": ["5 5", "10 5", "10 10", "5 10"], "correct": "10 5", "explanation": "A temporary variable holds one value during the swap so it isn't lost before both variables are exchanged."}, {"topic": 5, "code": "a, b = 0, 1\nfor i in range(5):\n    a, b = b, a + b\nprint(a)", "options": ["3", "8", "5", "13"], "correct": "5", "explanation": "Tuple unpacking a, b = b, a+b computes the next Fibonacci pair each iteration; after 5 rounds a is 5."}, {"topic": 5, "code": "num = 1234\nreversed_num = 0\nwhile num > 0:\n    digit = num % 10\n    reversed_num = reversed_num * 10 + digit\n    num = num // 10\nprint(reversed_num)", "options": ["1234", "1243", "4321", "4231"], "correct": "4321", "explanation": "Extracting digits with %10 and rebuilding with *10 reverses the digit order: 1234 \u2192 4321."}, {"topic": 5, "code": "num = 7\nif num % 2 == 0:\n    print(\"Even\")\nelse:\n    print(\"Odd\")", "options": ["True", "Even", "7", "Odd"], "correct": "Odd", "explanation": "num % 2 == 0 checks divisibility by 2; 7 is not evenly divisible, so it's Odd."}, {"topic": 5, "code": "a = 12\nb = 8\nwhile b != 0:\n    a, b = b, a % b\nprint(a)", "options": ["4", "0", "12", "8"], "correct": "4", "explanation": "The Euclidean algorithm repeatedly replaces (a,b) with (b, a%b) until b is 0, leaving the GCD in a: GCD(12,8)=4."}, {"topic": 5, "code": "total = 0\nfor i in range(1, 11):\n    if i % 2 == 0:\n        total += i\nprint(total)", "options": ["25", "30", "55", "20"], "correct": "30", "explanation": "The loop adds only even numbers between 1 and 10 (2+4+6+8+10 = 30)."}, {"topic": 5, "code": "lst = [1, 2, 3, 2, 4, 2]\ncount = 0\nfor n in lst:\n    if n == 2:\n        count += 1\nprint(count)", "options": ["4", "2", "6", "3"], "correct": "3", "explanation": "The loop increments count every time it finds a list element equal to 2 \u2014 there are three 2s in the list."}, {"topic": 5, "code": "lst = [5, 2, 8, 1]\nfor i in range(len(lst) - 1):\n    if lst[i] > lst[i+1]:\n        lst[i], lst[i+1] = lst[i+1], lst[i]\nprint(lst)", "options": ["[5, 2, 8, 1]", "[2, 8, 1, 5]", "[2, 5, 1, 8]", "[1, 2, 5, 8]"], "correct": "[2, 5, 1, 8]", "explanation": "One bubble sort pass compares each adjacent pair and swaps them if out of order, moving larger values right."}, {"topic": 5, "code": "lst = [4, 2, 9, 6]\ntarget = 9\nindex = -1\nfor i in range(len(lst)):\n    if lst[i] == target:\n        index = i\n        break\nprint(index)", "options": ["-1", "3", "2", "9"], "correct": "2", "explanation": "Linear search checks each element in order and stops (break) as soon as it finds a match, recording its index."}, {"topic": 5, "code": "lst = [10, 20, 30, 40]\ntotal = 0\nfor n in lst:\n    total += n\naverage = total / len(lst)\nprint(average)", "options": ["25", "25.0", "10.0", "100"], "correct": "25.0", "explanation": "Total is summed across the list, then divided by its length to get the mean: (10+20+30+40)/4 = 25.0."}, {"topic": 5, "code": "n = 0\ncount = 0\nwhile n < 100:\n    n += 7\n    count += 1\nprint(count)", "options": ["7", "15", "14", "100"], "correct": "15", "explanation": "The while loop keeps adding 7 until n reaches or exceeds 100, counting each iteration it takes."}, {"topic": 6, "code": "x = 10\nif x > 5:\n    print(\"Big\")\nelse:\n    print(\"Small\")", "options": ["Error", "x", "Small", "Big"], "correct": "Big", "explanation": "Since x (10) is greater than 5, the if branch runs and prints \"Big\"."}, {"topic": 6, "code": "x = 75\nif x >= 90:\n    print(\"A\")\nelif x >= 70:\n    print(\"B\")\nelif x >= 50:\n    print(\"C\")\nelse:\n    print(\"F\")", "options": ["A", "F", "C", "B"], "correct": "B", "explanation": "Python checks elif conditions top to bottom and executes the first one that's True \u2014 75 >= 70 matches before 75 >= 50 is even checked."}, {"topic": 6, "code": "x = 5\ny = 10\nif x > 0:\n    if y > 5:\n        print(\"Both positive\")\n    else:\n        print(\"Only x\")\nelse:\n    print(\"Neither\")", "options": ["Only x", "Neither", "Error", "Both positive"], "correct": "Both positive", "explanation": "The outer if is True (x>0), so Python then checks the inner if, which is also True (y>5), printing \"Both positive\"."}, {"topic": 6, "code": "x = 7\nif x > 5 and x < 10:\n    print(\"In range\")\nelse:\n    print(\"Out of range\")", "options": ["In range", "True", "Out of range", "False"], "correct": "In range", "explanation": "and requires both sides to be True; 7>5 and 7<10 are both True, so the condition holds."}, {"topic": 6, "code": "x = 3\nif x > 5 or x < 10:\n    print(\"Condition met\")\nelse:\n    print(\"Condition not met\")", "options": ["True", "Condition met", "False", "Condition not met"], "correct": "Condition met", "explanation": "or only needs one side to be True; even though 3>5 is False, 3<10 is True, so the whole condition is True."}, {"topic": 6, "code": "x = True\nprint(not x)", "options": ["0", "False", "Error", "True"], "correct": "False", "explanation": "not flips a boolean value: not True becomes False."}, {"topic": 6, "code": "x = 5\nif 1 < x < 10:\n    print(\"Yes\")\nelse:\n    print(\"No\")", "options": ["Yes", "True", "No", "Error"], "correct": "Yes", "explanation": "1 < x < 10 is Python's chained comparison shorthand for (1 < x) and (x < 10) \u2014 both hold true for x=5."}, {"topic": 6, "code": "x = 20\nif x > 10:\n    print(\"A\")\nif x > 15:\n    print(\"B\")\nif x > 25:\n    print(\"C\")", "options": ["A\nB", "B", "A\nB\nC", "A"], "correct": "A\nB", "explanation": "Each if statement here is independent (not elif), so every condition that evaluates True runs its own print \u2014 20>10 and 20>15 are both True, but 20>25 is False."}, {"topic": 6, "code": "x = 8\nresult = \"Even\" if x % 2 == 0 else \"Odd\"\nprint(result)", "options": ["True", "8", "Even", "Odd"], "correct": "Even", "explanation": "The ternary expression evaluates the condition first: since 8 % 2 == 0 is True, it returns \"Even\"."}, {"topic": 6, "code": "name = \"Alice\"\nif name == \"Bob\":\n    print(\"Hi Bob\")\nelse:\n    print(\"Who are you?\")", "options": ["Error", "Alice", "Who are you?", "Hi Bob"], "correct": "Who are you?", "explanation": "== compares the string values directly; \"Alice\" does not equal \"Bob\", so the else branch runs."}, {"topic": 6, "code": "print(True and False)", "options": ["True", "Error", "False", "None"], "correct": "False", "explanation": "and returns True only if both operands are True; here one is False, so the result is False."}, {"topic": 6, "code": "print(True or False)", "options": ["False", "True", "None", "Error"], "correct": "True", "explanation": "or returns True if at least one operand is True."}, {"topic": 6, "code": "x = 15\nif x % 2 == 0:\n    print(\"Even\")\nelif x % 3 == 0:\n    print(\"Divisible by 3\")\nelse:\n    print(\"None\")", "options": ["Even", "15", "None", "Divisible by 3"], "correct": "Divisible by 3", "explanation": "Since 15 is not even, Python moves to the elif, checks 15 % 3 == 0 (True), and runs that branch instead."}, {"topic": 6, "code": "word = \"banana\"\nif \"a\" in word:\n    print(\"Found\")\nelse:\n    print(\"Not found\")", "options": ["a", "True", "Found", "Not found"], "correct": "Found", "explanation": "The in operator checks whether a substring exists anywhere inside another string \u2014 'a' is inside \"banana\"."}, {"topic": 6, "code": "x = 10\nif x == 10:\n    print(\"Ten\")\nelif x == 10:\n    print(\"Also Ten\")\nelse:\n    print(\"Not Ten\")", "options": ["Ten\nAlso Ten", "Ten", "Not Ten", "Also Ten"], "correct": "Ten", "explanation": "Once an if or elif condition is matched and its block runs, Python skips all remaining elif/else branches even if they'd also be True."}, {"topic": 7, "code": "for i in range(5):\n    print(i, end=\" \")", "options": ["1 2 3 4", "0 1 2 3 4", "0 1 2 3 4 5", "1 2 3 4 5"], "correct": "0 1 2 3 4", "explanation": "range(5) generates 0,1,2,3,4 \u2014 it starts at 0 and stops before the given number."}, {"topic": 7, "code": "for i in range(1, 6):\n    print(i, end=\" \")", "options": ["2 3 4 5 6", "1 2 3 4", "0 1 2 3 4 5", "1 2 3 4 5"], "correct": "1 2 3 4 5", "explanation": "range(1,6) starts at 1 and stops before 6, producing 1,2,3,4,5."}, {"topic": 7, "code": "for i in range(10, 0, -2):\n    print(i, end=\" \")", "options": ["10 9 8 7", "10 8 6 4 2 0", "10 8 6 4 2", "0 2 4 6 8 10"], "correct": "10 8 6 4 2", "explanation": "A negative step counts downward from the start value toward (but not including) the stop value: 10,8,6,4,2."}, {"topic": 7, "code": "count = 0\nwhile count < 5:\n    print(count, end=\" \")\n    count += 1", "options": ["0 1 2 3 4", "0 1 2 3 4 5", "5", "1 2 3 4 5"], "correct": "0 1 2 3 4", "explanation": "The while loop prints and increments count as long as count < 5, producing 0 through 4."}, {"topic": 7, "code": "for i in range(10):\n    if i == 5:\n        break\n    print(i, end=\" \")", "options": ["0 1 2 3 4", "0 1 2 3 4 5 6 7 8 9", "5", "0 1 2 3 4 5"], "correct": "0 1 2 3 4", "explanation": "break immediately exits the loop the moment i equals 5, so only 0\u20134 are printed before it stops."}, {"topic": 7, "code": "for i in range(5):\n    if i == 2:\n        continue\n    print(i, end=\" \")", "options": ["2", "0 1 3 4", "0 1 2 3 4", "0 1"], "correct": "0 1 3 4", "explanation": "continue skips the rest of that iteration's code (the print) but lets the loop carry on \u2014 so 2 is skipped while 0,1,3,4 print."}, {"topic": 7, "code": "for i in range(3):\n    for j in range(2):\n        print(i, j)", "options": ["0 1\n0 1\n0 1", "0 0\n0 1\n0 2", "0 0\n1 1\n2 2", "0 0\n0 1\n1 0\n1 1\n2 0\n2 1"], "correct": "0 0\n0 1\n1 0\n1 1\n2 0\n2 1", "explanation": "The nested loop runs the inner loop fully for each value of the outer loop, printing every (i,j) pair in order."}, {"topic": 7, "code": "total = 0\nfor i in range(1, 5):\n    total += i\nprint(total)", "options": ["6", "4", "15", "10"], "correct": "10", "explanation": "total accumulates the sum of i for each pass through the loop: 1+2+3+4 = 10."}, {"topic": 7, "code": "word = \"cat\"\nfor ch in word:\n    print(ch, end=\"-\")", "options": ["cat", "cat-", "c-a-t-", "c-a-t"], "correct": "c-a-t-", "explanation": "Iterating directly over a string yields each character one at a time, in order."}, {"topic": 7, "code": "x = 1\nwhile True:\n    print(x, end=\" \")\n    x += 1\n    if x > 4:\n        break", "options": ["1 2 3", "1 2 3 4 5", "4", "1 2 3 4"], "correct": "1 2 3 4", "explanation": "while True runs forever until the break condition (x>4) is met, after which the loop exits."}, {"topic": 7, "code": "for i in range(3):\n    print(\"Hi\")\nelse:\n    print(\"Done\")", "options": ["Hi\nDone\nHi\nDone\nHi\nDone", "Hi\nHi\nHi", "Hi\nHi\nHi\nDone", "Done"], "correct": "Hi\nHi\nHi\nDone", "explanation": "A for...else block's else clause runs automatically once the loop finishes normally (without hitting a break)."}, {"topic": 7, "code": "for i in range(0, 20, 5):\n    print(i, end=\" \")", "options": ["0 5 10 15 20", "0 5 10 15", "0 4 8 12 16", "5 10 15 20"], "correct": "0 5 10 15", "explanation": "range(0,20,5) starts at 0, increases by 5 each time, and stops before 20: 0,5,10,15."}, {"topic": 7, "code": "total = 0\nfor i in range(2):\n    for j in range(3):\n        total += 1\nprint(total)", "options": ["5", "6", "3", "2"], "correct": "6", "explanation": "The inner loop runs 3 times for each of the 2 outer iterations, adding 1 each time: 2 \u00d7 3 = 6."}, {"topic": 7, "code": "s = \"\"\nfor i in range(3):\n    s = s + str(i)\nprint(s)", "options": ["3", "012", "210", "0 1 2"], "correct": "012", "explanation": "Each loop iteration converts i to a string and appends it, building up the final string one character at a time."}, {"topic": 7, "code": "Which of the following loops runs forever (infinite loop)?", "options": ["for i in range(5):\n    print(i)", "for i in range(0):\n    print(i)", "while False:\n    print(\"hi\")", "while True:\n    print(\"hi\")"], "correct": "while True:\n    print(\"hi\")", "explanation": "while True has no break statement inside it, so nothing ever stops the loop \u2014 it runs forever."}, {"topic": 8, "code": "s = \"Python\"\nprint(s[0])", "options": ["Error", "P", "n", "y"], "correct": "P", "explanation": "String indexing starts at 0, so s[0] is the first character."}, {"topic": 8, "code": "s = \"Python\"\nprint(s[-1])", "options": ["Error", "P", "n", "o"], "correct": "n", "explanation": "Negative indices count from the end; s[-1] is the last character."}, {"topic": 8, "code": "s = \"Python\"\nprint(s[1:4])", "options": ["hon", "yth", "Pyt", "ytho"], "correct": "yth", "explanation": "Slicing s[1:4] takes characters from index 1 up to (not including) index 4: 'y','t','h'."}, {"topic": 8, "code": "s = \"Python\"\nprint(s[:3])", "options": ["Pytho", "yth", "hon", "Pyt"], "correct": "Pyt", "explanation": "s[:3] takes characters from the start up to (not including) index 3: 'P','y','t'."}, {"topic": 8, "code": "s = \"Python\"\nprint(s[3:])", "options": ["Pyt", "on", "hon", "tho"], "correct": "hon", "explanation": "s[3:] takes characters from index 3 to the end of the string."}, {"topic": 8, "code": "s = \"Python\"\nprint(len(s))", "options": ["0", "5", "6", "7"], "correct": "6", "explanation": "len() counts the number of characters in the string."}, {"topic": 8, "code": "s = \"Hello\"\nprint(s.upper())", "options": ["HELLO", "Error", "Hello", "hello"], "correct": "HELLO", "explanation": ".upper() returns a new string with all letters converted to uppercase."}, {"topic": 8, "code": "s = \"HELLO\"\nprint(s.lower())", "options": ["HELLO", "hello", "Hello", "Error"], "correct": "hello", "explanation": ".lower() returns a new string with all letters converted to lowercase."}, {"topic": 8, "code": "s = \"  Hi  \"\nprint(s.strip())", "options": ["  Hi  ", " Hi", "Hi  ", "Hi"], "correct": "Hi", "explanation": ".strip() removes leading and trailing whitespace, but leaves internal characters untouched."}, {"topic": 8, "code": "s = \"Hello World\"\nprint(s.split())", "options": ["('Hello', 'World')", "Hello, World", "['Hello World']", "['Hello', 'World']"], "correct": "['Hello', 'World']", "explanation": ".split() with no arguments splits on any whitespace and returns a list of the resulting words."}, {"topic": 8, "code": "s = \"Hello\"\nprint(s.replace(\"l\", \"L\"))", "options": ["Hello", "HELLo", "HeLLo", "heLLo"], "correct": "HeLLo", "explanation": ".replace(old, new) returns a new string with every occurrence of old replaced by new."}, {"topic": 8, "code": "s = \"Hello\"\nprint(s[::-1])", "options": ["Error", "olleH", "Hello", "oellH"], "correct": "olleH", "explanation": "The slice s[::-1] uses a step of -1, which reverses the entire string."}, {"topic": 8, "code": "s = \"Hello\" + \" \" + \"World\"\nprint(s)", "options": ["HelloWorld", "Error", "Hello World", "Hello  World"], "correct": "Hello World", "explanation": "The + operator joins strings together end-to-end (concatenation)."}, {"topic": 8, "code": "s = \"abc\"\nprint(s * 2)", "options": ["Error", "ab cabc", "abc2", "abcabc"], "correct": "abcabc", "explanation": "The * operator on a string repeats its full content that many times."}, {"topic": 8, "code": "s = \"Hello\"\nprint(s.find(\"l\"))", "options": ["-1", "0", "2", "3"], "correct": "2", "explanation": ".find() returns the index of the first occurrence of the substring \u2014 the first 'l' in \"Hello\" is at index 2."}, {"topic": 9, "code": "lst = [1, 2, 3]\nprint(lst[0])", "options": ["3", "1", "Error", "2"], "correct": "1", "explanation": "List indexing starts at 0, so lst[0] is the first element."}, {"topic": 9, "code": "lst = [1, 2, 3]\nlst.append(4)\nprint(lst)", "options": ["[1, 2, 3, 4]", "Error", "[4, 1, 2, 3]", "[1, 2, 3]"], "correct": "[1, 2, 3, 4]", "explanation": ".append() adds a new element to the end of the list."}, {"topic": 9, "code": "lst = [1, 2, 3]\nlst.remove(2)\nprint(lst)", "options": ["[1, 2, 3]", "[1, 3]", "[2]", "[1, 2]"], "correct": "[1, 3]", "explanation": ".remove(value) deletes the first matching value it finds in the list."}, {"topic": 9, "code": "lst = [3, 1, 2]\nlst.sort()\nprint(lst)", "options": ["[3, 1, 2]", "Error", "[1, 2, 3]", "[3, 2, 1]"], "correct": "[1, 2, 3]", "explanation": ".sort() rearranges the list's elements into ascending order in place."}, {"topic": 9, "code": "lst = [1, 2, 3]\nprint(len(lst))", "options": ["4", "2", "3", "0"], "correct": "3", "explanation": "len() returns the number of elements currently in the list."}, {"topic": 9, "code": "lst = [1, 2, 3, 4, 5]\nprint(lst[1:3])", "options": ["[2, 3, 4]", "[1, 2]", "[2, 3]", "[1, 2, 3]"], "correct": "[2, 3]", "explanation": "Slicing lst[1:3] takes elements from index 1 up to (not including) index 3."}, {"topic": 9, "code": "t = (1, 2, 3)\nprint(t[0])", "options": ["Error", "1", "2", "3"], "correct": "1", "explanation": "Tuple indexing works just like list indexing \u2014 t[0] is the first element."}, {"topic": 9, "code": "t = (1, 2, 3)\nt[0] = 5\nprint(t)", "options": ["IndexError", "(1, 2, 3)", "TypeError", "(5, 2, 3)"], "correct": "TypeError", "explanation": "Tuples are immutable, so attempting to change an element by index raises TypeError."}, {"topic": 9, "code": "d = {\"a\": 1, \"b\": 2}\nprint(d[\"a\"])", "options": ["1", "'a'", "2", "Error"], "correct": "1", "explanation": "Dictionary values are accessed using their key inside square brackets."}, {"topic": 9, "code": "d = {\"a\": 1}\nd[\"b\"] = 2\nprint(d)", "options": ["Error", "{'b': 2}", "{'a': 1}", "{'a': 1, 'b': 2}"], "correct": "{'a': 1, 'b': 2}", "explanation": "Assigning to a new key (d[\"b\"] = 2) adds that key-value pair to the dictionary."}, {"topic": 9, "code": "lst = [1, 2, 3]\nlst[1] = 99\nprint(lst)", "options": ["[1, 99, 3]", "[1, 2, 3]", "[99, 2, 3]", "Error"], "correct": "[1, 99, 3]", "explanation": "Assigning to an existing index (lst[1] = 99) replaces the value stored at that position."}, {"topic": 9, "code": "lst = [1, 2, 3]\nprint(3 in lst)", "options": ["3", "False", "Error", "True"], "correct": "True", "explanation": "The in operator checks whether a value exists anywhere within the list."}, {"topic": 9, "code": "d = {\"x\": 1, \"y\": 2}\nprint(list(d.keys()))", "options": ["['x', 'y']", "('x', 'y')", "[1, 2]", "['y', 'x']"], "correct": "['x', 'y']", "explanation": ".keys() returns all the dictionary's keys, in the order they were inserted."}, {"topic": 9, "code": "lst = [1, 2] + [3, 4]\nprint(lst)", "options": ["[4, 6]", "[1, 2, [3, 4]]", "Error", "[1, 2, 3, 4]"], "correct": "[1, 2, 3, 4]", "explanation": "+ on two lists concatenates them into a single new list (it does not add element-wise)."}, {"topic": 9, "code": "lst = [1, 2, 2, 3]\nprint(lst.count(2))", "options": ["2", "1", "0", "3"], "correct": "2", "explanation": ".count(value) returns how many times that value appears in the list \u2014 2 appears twice."}];
+const QUESTIONS = [{"topic": 1, "code": "print(\"Hello, World!\")", "options": ["Hello World!", "\"Hello, World!\"", "Error", "Hello, World!"], "correct": "Hello, World!", "explanation": "print() with a plain string just outputs the text between the quotes, without the quote marks themselves.", "prompt": "What does the following code print?"}, {"topic": 1, "code": "print('Hello', \"World\")", "options": ["Error", "Hello, World", "Hello World", "HelloWorld"], "correct": "Hello World", "explanation": "print() joins multiple comma-separated arguments with a single space by default.", "prompt": "What does the following code print?"}, {"topic": 1, "code": "print(\"Python\", \"is\", \"fun\", sep=\"-\")", "options": ["Python is fun", "-Python-is-fun", "Python-is-fun-", "Python-is-fun"], "correct": "Python-is-fun", "explanation": "The sep parameter changes the separator placed between printed arguments \u2014 here '-' replaces the default space.", "prompt": "What does the following code print?"}, {"topic": 1, "code": "print(5 + 3)", "options": ["53", "5 + 3", "8", "Error"], "correct": "8", "explanation": "Both operands are numbers, so + performs arithmetic addition: 5 + 3 = 8.", "prompt": "What does the following code print?"}, {"topic": 1, "code": "print(\"5\" + \"3\")", "options": ["8", "5 3", "Error", "53"], "correct": "53", "explanation": "Both operands are strings, so + performs concatenation (joining text) instead of arithmetic: \"5\"+\"3\" = \"53\".", "prompt": "What does the following code print?"}, {"topic": 1, "code": "print(\"Hello\" * 3)", "options": ["Hello Hello Hello", "Error", "Hello3", "HelloHelloHello"], "correct": "HelloHelloHello", "explanation": "The * operator on a string repeats it that many times: \"Hello\"*3 = \"HelloHelloHello\".", "prompt": "What does the following code print?"}, {"topic": 1, "code": "if True:\nprint(\"Hi\")", "options": ["SyntaxError", "Hi", "IndentationError", "NameError"], "correct": "IndentationError", "explanation": "Python uses indentation to define code blocks. A statement after ':' with no indentation raises IndentationError.", "prompt": "What does the following code print?"}, {"topic": 1, "code": "Print(\"Hi\")", "options": ["Hi", "TypeError", "NameError", "SyntaxError"], "correct": "NameError", "explanation": "Python is case-sensitive \u2014 print and Print are different names. Since Print isn't defined, this raises NameError.", "prompt": "What does the following code print?"}, {"topic": 1, "code": "# print(\"Hello\")\nprint(\"World\")", "options": ["World", "Hello\\nWorld", "Hello", "Nothing is printed"], "correct": "World", "explanation": "A line starting with # is a comment and is ignored entirely by Python; only the next print() line runs.", "prompt": "What does the following code print?"}, {"topic": 1, "code": "x = 10 print(x)", "options": ["NameError", "runs fine, prints nothing", "SyntaxError", "10"], "correct": "SyntaxError", "explanation": "Two statements can't sit on the same line without a semicolon (;) between them \u2014 this raises SyntaxError.", "prompt": "What does the following code print?"}, {"topic": 1, "code": "print(\"It's a test\")", "options": ["SyntaxError", "It", "Its a test", "It's a test"], "correct": "It's a test", "explanation": "Using double quotes lets you include an apostrophe inside the string without needing to escape it.", "prompt": "What does the following code print?"}, {"topic": 1, "code": "print(\"Line1\\nLine2\")", "options": ["Error", "Line1 Line2", "Line1\\nLine2", "Line1\nLine2"], "correct": "Line1\nLine2", "explanation": "\\n inside a string is the newline escape character, so it prints as an actual line break.", "prompt": "What does the following code print?"}, {"topic": 1, "code": "print(3 == 3.0)", "options": ["Error", "False", "True", "1"], "correct": "True", "explanation": "== compares values, not types. 3 and 3.0 have equal value, so 3 == 3.0 evaluates to True.", "prompt": "What does the following code print?"}, {"topic": 1, "code": "print(type(\"Hello\"))", "options": ["str", "Error", "<class 'string'>", "<class 'str'>"], "correct": "<class 'str'>", "explanation": "type() reveals an object's data type \u2014 a value in quotes is a str.", "prompt": "What does the following code print?"}, {"topic": 1, "code": "print(type(5))", "options": ["<class 'int'>", "<class 'integer'>", "Error", "int"], "correct": "<class 'int'>", "explanation": "type() reveals an object's data type \u2014 a whole number literal is an int.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "x = 5\ny = 3\nprint(x + y)", "options": ["Error", "8", "35", "53"], "correct": "8", "explanation": "Values are substituted into their variables, then added: 5 + 3 = 8.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "a = 2\na = a + 3\nprint(a)", "options": ["2", "23", "3", "5"], "correct": "5", "explanation": "a is reassigned to its old value plus 3: 2 + 3 = 5.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "x, y = 5, 10\nprint(x, y)", "options": ["10 5", "Error", "5 10", "(5, 10)"], "correct": "5 10", "explanation": "Multiple assignment unpacks values in order: x gets 5, y gets 10.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "a = b = 10\nprint(a, b)", "options": ["None 10", "Error", "10 0", "10 10"], "correct": "10 10", "explanation": "Chained assignment (a = b = 10) assigns the same value 10 to both a and b.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "x = 10\nx += 5\nprint(x)", "options": ["15", "10", "5", "105"], "correct": "15", "explanation": "+= adds to the existing value and reassigns: 10 + 5 = 15.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "x = 10\nx -= 3\nprint(x)", "options": ["7", "-3", "10", "13"], "correct": "7", "explanation": "-= subtracts from the existing value and reassigns: 10 - 3 = 7.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "x = 2\nx *= 3\nprint(x)", "options": ["6", "9", "23", "5"], "correct": "6", "explanation": "*= multiplies the existing value and reassigns: 2 * 3 = 6.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "x = 10\nx /= 4\nprint(x)", "options": ["2", "Error", "2.0", "2.5"], "correct": "2.5", "explanation": "/= is true division and always returns a float, even when the result is a whole number: 10/4 = 2.5.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "x = 10\nx //= 3\nprint(x)", "options": ["3.0", "1", "3", "3.33"], "correct": "3", "explanation": "//= is floor division \u2014 it divides then rounds down to the nearest whole number: 10//3 = 3.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "x = 10\nx %= 3\nprint(x)", "options": ["0", "1", "3", "3.33"], "correct": "1", "explanation": "%= gives the remainder of division: 10 % 3 = 1.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "print(2 ** 3)", "options": ["6", "23", "8", "9"], "correct": "8", "explanation": "** is the exponent (power) operator: 2 ** 3 = 2\u00d72\u00d72 = 8.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "print(7 % 2)", "options": ["3.5", "0", "3", "1"], "correct": "1", "explanation": "% returns the remainder after division: 7 % 2 = 1.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "print((2 + 3) * 4)", "options": ["14", "9", "20", "10"], "correct": "20", "explanation": "Parentheses are evaluated first: (2+3)=5, then 5*4=20.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "a = 5\nb = a\na = 10\nprint(b)", "options": ["Error", "10", "5", "15"], "correct": "5", "explanation": "Assigning b = a copies the value at that moment. Later changing a does not affect b, since numbers are immutable.", "prompt": "What does the following code print?"}, {"topic": 2, "code": "x = \"5\"\ny = 5\nprint(x == y)", "options": ["False", "True", "Error", "5"], "correct": "False", "explanation": "== checks both value and type compatibility in Python's comparison rules; \"5\" (str) and 5 (int) are different types, so the comparison is False.", "prompt": "What does the following code print?"}, {"topic": 3, "code": "age = input(\"Enter age: \")\nprint(type(age))", "options": ["<class 'float'>", "<class 'str'>", "Error", "<class 'int'>"], "correct": "<class 'str'>", "explanation": "input() always returns a string, regardless of what the user types \u2014 even if they type a number.", "prompt": "What does the following code print?"}, {"topic": 3, "code": "age = int(input())\nprint(age + 1)", "options": ["6", "Error", "5", "51"], "correct": "6", "explanation": "int(input()) converts the typed text to an integer before doing arithmetic: 5 + 1 = 6.", "prompt": "What does the following code print?"}, {"topic": 3, "code": "print(\"Result:\", 5 + 3)", "options": ["Result: 8", "Result:8", "Result: 5 + 3", "Error"], "correct": "Result: 8", "explanation": "print() separates comma-separated arguments with a space, and prefixes them with the literal text given.", "prompt": "What does the following code print?"}, {"topic": 3, "code": "print(5, 3, sep=\", \")", "options": ["5,3", "5, 3,", "5, 3", "5 3"], "correct": "5, 3", "explanation": "The sep parameter controls what appears between printed items \u2014 here \", \" is used instead of the default space.", "prompt": "What does the following code print?"}, {"topic": 3, "code": "print(\"A\", end=\"\")\nprint(\"B\")", "options": ["A B", "A\\nB", "AB", "BA"], "correct": "AB", "explanation": "end=\"\" replaces the default trailing newline with an empty string, so the next print() continues on the same line.", "prompt": "What does the following code print?"}, {"topic": 3, "code": "name = input()\nprint(f\"Hi {name}\")", "options": ["Hi {name}", "Hi name", "Error", "Hi Sam"], "correct": "Hi Sam", "explanation": "An f-string (f\"...\") substitutes {name} with the variable's current value directly into the string.", "prompt": "What does the following code print?"}, {"topic": 3, "code": "x = float(input())\nprint(x * 2)", "options": ["5", "5.0", "2.5 2.5", "Error"], "correct": "5.0", "explanation": "float(input()) converts the typed text to a decimal number before the multiplication: 2.5 * 2 = 5.0.", "prompt": "What does the following code print?"}, {"topic": 3, "code": "print(\"The value is %d\" % 10)", "options": ["The value is 10", "The value is 10.0", "The value is %d", "Error"], "correct": "The value is 10", "explanation": "%d is old-style string formatting that inserts an integer value in place of %d.", "prompt": "What does the following code print?"}, {"topic": 3, "code": "print(\"{} and {}\".format(\"cat\", \"dog\"))", "options": ["{cat} and {dog}", "cat and dog", "Error", "cat, dog"], "correct": "cat and dog", "explanation": "\"{}\".format(...) fills each {} placeholder with the corresponding argument, in order.", "prompt": "What does the following code print?"}, {"topic": 3, "code": "num = input(\"Enter: \")\nprint(num + num)", "options": ["Error", "10", "5 5", "55"], "correct": "55", "explanation": "input() returns a string, so + concatenates the text rather than adding numbers: \"5\"+\"5\" = \"55\".", "prompt": "What does the following code print?"}, {"topic": 3, "code": "a = input()\nb = input()\nprint(a + b)", "options": ["Error", "7", "34", "3 4"], "correct": "34", "explanation": "Since both inputs are strings, + joins them end-to-end: \"3\"+\"4\" = \"34\".", "prompt": "What does the following code print?"}, {"topic": 3, "code": "print(str(5) + str(5))", "options": ["5 5", "10", "55", "Error"], "correct": "55", "explanation": "str(5) converts the integer to the string \"5\", then + concatenates: \"5\"+\"5\" = \"55\".", "prompt": "What does the following code print?"}, {"topic": 3, "code": "print(int(\"5\") + int(\"5\"))", "options": ["Error", "55", "5 5", "10"], "correct": "10", "explanation": "int(\"5\") converts the string to the integer 5, so + adds numerically: 5+5 = 10.", "prompt": "What does the following code print?"}, {"topic": 3, "code": "print(round(3.14159, 2))", "options": ["3.0", "3.14", "3.15", "3.1"], "correct": "3.14", "explanation": "round(number, 2) rounds to 2 decimal places: 3.14159 \u2192 3.14.", "prompt": "What does the following code print?"}, {"topic": 3, "code": "print(f\"{5 + 3}\")", "options": ["5 + 3", "8", "Error", "{5+3}"], "correct": "8", "explanation": "Inside an f-string, {5+3} is evaluated as an expression before being inserted, giving 8.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "print(10 / 0)", "options": ["0", "ZeroDivisionError", "TypeError", "10"], "correct": "ZeroDivisionError", "explanation": "Dividing by zero is mathematically undefined, so Python raises ZeroDivisionError.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "print(x)", "options": ["SyntaxError", "0", "None", "NameError"], "correct": "NameError", "explanation": "Referring to a variable that was never assigned raises NameError.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "print(\"5\" + 5)", "options": ["55", "10", "TypeError", "ValueError"], "correct": "TypeError", "explanation": "You can't add a string and an int directly \u2014 mixing incompatible types in + raises TypeError.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "print(int(\"abc\"))", "options": ["TypeError", "ValueError", "0", "abc"], "correct": "ValueError", "explanation": "int() can't convert non-numeric text like \"abc\" into a number, so it raises ValueError.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "lst = [1, 2, 3]\nprint(lst[5])", "options": ["None", "3", "KeyError", "IndexError"], "correct": "IndexError", "explanation": "Accessing a list position that doesn't exist raises IndexError.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "d = {\"a\": 1}\nprint(d[\"b\"])", "options": ["IndexError", "None", "1", "KeyError"], "correct": "KeyError", "explanation": "Accessing a dictionary key that doesn't exist raises KeyError.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "try:\n    print(1 / 0)\nexcept ZeroDivisionError:\n    print(\"Cannot divide by zero\")", "options": ["ZeroDivisionError", "1", "0", "Cannot divide by zero"], "correct": "Cannot divide by zero", "explanation": "The try block raises ZeroDivisionError, which is caught by the matching except clause and handled.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "try:\n    x = int(\"abc\")\nexcept ValueError:\n    print(\"Invalid number\")", "options": ["Invalid number", "0", "abc", "ValueError"], "correct": "Invalid number", "explanation": "int(\"abc\") raises ValueError, which is caught by the except ValueError block.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "print('abc'[10])", "options": ["IndexError", "None", "empty string", "TypeError"], "correct": "IndexError", "explanation": "Indexing a string beyond its length raises IndexError, just like it does for lists.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "if True\n    print(\"Hi\")", "options": ["NameError", "SyntaxError", "IndentationError", "Hi"], "correct": "SyntaxError", "explanation": "An if statement's condition line must end with a colon \u2014 omitting it raises SyntaxError.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "a = 10\nb = 3\naverage = a + b / 2\nprint(average)", "options": ["11.5", "6", "6.5", "13"], "correct": "11.5", "explanation": "Division (/) happens before addition (+) due to operator precedence: 3/2=1.5, then 10+1.5=11.5.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "try:\n    print(\"Start\")\n    print(1 / 0)\nexcept ZeroDivisionError:\n    print(\"Error caught\")\nelse:\n    print(\"No error\")", "options": ["Start\nError caught", "Start\nNo error", "Error caught", "Start"], "correct": "Start\nError caught", "explanation": "The else block after try/except only runs if no exception occurred in the try block.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "try:\n    print(1 / 1)\nexcept ZeroDivisionError:\n    print(\"Error\")\nfinally:\n    print(\"Done\")", "options": ["1.0", "Done", "Error\nDone", "1.0\nDone"], "correct": "1.0\nDone", "explanation": "The finally block always executes, whether or not an exception occurred.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "x = 5\nassert x > 10, \"x must be greater than 10\"", "options": ["True", "False", "5", "AssertionError"], "correct": "AssertionError", "explanation": "assert checks a condition and raises AssertionError if it's False \u2014 here 5 > 10 is False.", "prompt": "What does the following code print?"}, {"topic": 4, "code": "try:\n    lst = [1, 2]\n    print(lst[5])\nexcept IndexError:\n    print(\"Index out of range\")\nexcept:\n    print(\"Other error\")", "options": ["5", "Index out of range", "IndexError", "Other error"], "correct": "Index out of range", "explanation": "Python checks except clauses in order and uses the first matching one \u2014 IndexError is caught before the generic except.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "numbers = [3, 7, 2, 9, 4]\nlargest = numbers[0]\nfor n in numbers:\n    if n > largest:\n        largest = n\nprint(largest)", "options": ["4", "3", "7", "9"], "correct": "9", "explanation": "The loop compares each number to the current largest and updates it whenever a bigger value is found.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "result = 1\nfor i in range(1, 5):\n    result *= i\nprint(result)", "options": ["10", "20", "24", "120"], "correct": "24", "explanation": "Multiplying result by each number from 1 to 4 computes 4! = 1\u00d72\u00d73\u00d74 = 24.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "num = 123\ntotal = 0\nwhile num > 0:\n    total += num % 10\n    num = num // 10\nprint(total)", "options": ["123", "0", "6", "3"], "correct": "6", "explanation": "Repeatedly taking num%10 extracts the last digit, and num//10 removes it, summing all digits: 1+2+3=6.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "count = 0\nfor i in range(1, 20):\n    if i % 3 == 0:\n        count += 1\nprint(count)", "options": ["6", "5", "19", "7"], "correct": "6", "explanation": "The loop counts how many numbers from 1\u201319 are divisible by 3: 3,6,9,12,15,18 \u2192 6 numbers.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "a = 5\nb = 10\ntemp = a\na = b\nb = temp\nprint(a, b)", "options": ["5 5", "10 5", "10 10", "5 10"], "correct": "10 5", "explanation": "A temporary variable holds one value during the swap so it isn't lost before both variables are exchanged.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "a, b = 0, 1\nfor i in range(5):\n    a, b = b, a + b\nprint(a)", "options": ["3", "8", "5", "13"], "correct": "5", "explanation": "Tuple unpacking a, b = b, a+b computes the next Fibonacci pair each iteration; after 5 rounds a is 5.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "num = 1234\nreversed_num = 0\nwhile num > 0:\n    digit = num % 10\n    reversed_num = reversed_num * 10 + digit\n    num = num // 10\nprint(reversed_num)", "options": ["1234", "1243", "4321", "4231"], "correct": "4321", "explanation": "Extracting digits with %10 and rebuilding with *10 reverses the digit order: 1234 \u2192 4321.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "num = 7\nif num % 2 == 0:\n    print(\"Even\")\nelse:\n    print(\"Odd\")", "options": ["True", "Even", "7", "Odd"], "correct": "Odd", "explanation": "num % 2 == 0 checks divisibility by 2; 7 is not evenly divisible, so it's Odd.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "a = 12\nb = 8\nwhile b != 0:\n    a, b = b, a % b\nprint(a)", "options": ["4", "0", "12", "8"], "correct": "4", "explanation": "The Euclidean algorithm repeatedly replaces (a,b) with (b, a%b) until b is 0, leaving the GCD in a: GCD(12,8)=4.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "total = 0\nfor i in range(1, 11):\n    if i % 2 == 0:\n        total += i\nprint(total)", "options": ["25", "30", "55", "20"], "correct": "30", "explanation": "The loop adds only even numbers between 1 and 10 (2+4+6+8+10 = 30).", "prompt": "What does the following code print?"}, {"topic": 5, "code": "lst = [1, 2, 3, 2, 4, 2]\ncount = 0\nfor n in lst:\n    if n == 2:\n        count += 1\nprint(count)", "options": ["4", "2", "6", "3"], "correct": "3", "explanation": "The loop increments count every time it finds a list element equal to 2 \u2014 there are three 2s in the list.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "lst = [5, 2, 8, 1]\nfor i in range(len(lst) - 1):\n    if lst[i] > lst[i+1]:\n        lst[i], lst[i+1] = lst[i+1], lst[i]\nprint(lst)", "options": ["[5, 2, 8, 1]", "[2, 8, 1, 5]", "[2, 5, 1, 8]", "[1, 2, 5, 8]"], "correct": "[2, 5, 1, 8]", "explanation": "One bubble sort pass compares each adjacent pair and swaps them if out of order, moving larger values right.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "lst = [4, 2, 9, 6]\ntarget = 9\nindex = -1\nfor i in range(len(lst)):\n    if lst[i] == target:\n        index = i\n        break\nprint(index)", "options": ["-1", "3", "2", "9"], "correct": "2", "explanation": "Linear search checks each element in order and stops (break) as soon as it finds a match, recording its index.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "lst = [10, 20, 30, 40]\ntotal = 0\nfor n in lst:\n    total += n\naverage = total / len(lst)\nprint(average)", "options": ["25", "25.0", "10.0", "100"], "correct": "25.0", "explanation": "Total is summed across the list, then divided by its length to get the mean: (10+20+30+40)/4 = 25.0.", "prompt": "What does the following code print?"}, {"topic": 5, "code": "n = 0\ncount = 0\nwhile n < 100:\n    n += 7\n    count += 1\nprint(count)", "options": ["7", "15", "14", "100"], "correct": "15", "explanation": "The while loop keeps adding 7 until n reaches or exceeds 100, counting each iteration it takes.", "prompt": "What does the following code print?"}, {"topic": 6, "code": "x = 10\nif x > 5:\n    print(\"Big\")\nelse:\n    print(\"Small\")", "options": ["Error", "x", "Small", "Big"], "correct": "Big", "explanation": "Since x (10) is greater than 5, the if branch runs and prints \"Big\".", "prompt": "What does the following code print?"}, {"topic": 6, "code": "x = 75\nif x >= 90:\n    print(\"A\")\nelif x >= 70:\n    print(\"B\")\nelif x >= 50:\n    print(\"C\")\nelse:\n    print(\"F\")", "options": ["A", "F", "C", "B"], "correct": "B", "explanation": "Python checks elif conditions top to bottom and executes the first one that's True \u2014 75 >= 70 matches before 75 >= 50 is even checked.", "prompt": "What does the following code print?"}, {"topic": 6, "code": "x = 5\ny = 10\nif x > 0:\n    if y > 5:\n        print(\"Both positive\")\n    else:\n        print(\"Only x\")\nelse:\n    print(\"Neither\")", "options": ["Only x", "Neither", "Error", "Both positive"], "correct": "Both positive", "explanation": "The outer if is True (x>0), so Python then checks the inner if, which is also True (y>5), printing \"Both positive\".", "prompt": "What does the following code print?"}, {"topic": 6, "code": "x = 7\nif x > 5 and x < 10:\n    print(\"In range\")\nelse:\n    print(\"Out of range\")", "options": ["In range", "True", "Out of range", "False"], "correct": "In range", "explanation": "and requires both sides to be True; 7>5 and 7<10 are both True, so the condition holds.", "prompt": "What does the following code print?"}, {"topic": 6, "code": "x = 3\nif x > 5 or x < 10:\n    print(\"Condition met\")\nelse:\n    print(\"Condition not met\")", "options": ["True", "Condition met", "False", "Condition not met"], "correct": "Condition met", "explanation": "or only needs one side to be True; even though 3>5 is False, 3<10 is True, so the whole condition is True.", "prompt": "What does the following code print?"}, {"topic": 6, "code": "x = True\nprint(not x)", "options": ["0", "False", "Error", "True"], "correct": "False", "explanation": "not flips a boolean value: not True becomes False.", "prompt": "What does the following code print?"}, {"topic": 6, "code": "x = 5\nif 1 < x < 10:\n    print(\"Yes\")\nelse:\n    print(\"No\")", "options": ["Yes", "True", "No", "Error"], "correct": "Yes", "explanation": "1 < x < 10 is Python's chained comparison shorthand for (1 < x) and (x < 10) \u2014 both hold true for x=5.", "prompt": "What does the following code print?"}, {"topic": 6, "code": "x = 20\nif x > 10:\n    print(\"A\")\nif x > 15:\n    print(\"B\")\nif x > 25:\n    print(\"C\")", "options": ["A\nB", "B", "A\nB\nC", "A"], "correct": "A\nB", "explanation": "Each if statement here is independent (not elif), so every condition that evaluates True runs its own print \u2014 20>10 and 20>15 are both True, but 20>25 is False.", "prompt": "What does the following code print?"}, {"topic": 6, "code": "x = 8\nresult = \"Even\" if x % 2 == 0 else \"Odd\"\nprint(result)", "options": ["True", "8", "Even", "Odd"], "correct": "Even", "explanation": "The ternary expression evaluates the condition first: since 8 % 2 == 0 is True, it returns \"Even\".", "prompt": "What does the following code print?"}, {"topic": 6, "code": "name = \"Alice\"\nif name == \"Bob\":\n    print(\"Hi Bob\")\nelse:\n    print(\"Who are you?\")", "options": ["Error", "Alice", "Who are you?", "Hi Bob"], "correct": "Who are you?", "explanation": "== compares the string values directly; \"Alice\" does not equal \"Bob\", so the else branch runs.", "prompt": "What does the following code print?"}, {"topic": 6, "code": "print(True and False)", "options": ["True", "Error", "False", "None"], "correct": "False", "explanation": "and returns True only if both operands are True; here one is False, so the result is False.", "prompt": "What does the following code print?"}, {"topic": 6, "code": "print(True or False)", "options": ["False", "True", "None", "Error"], "correct": "True", "explanation": "or returns True if at least one operand is True.", "prompt": "What does the following code print?"}, {"topic": 6, "code": "x = 15\nif x % 2 == 0:\n    print(\"Even\")\nelif x % 3 == 0:\n    print(\"Divisible by 3\")\nelse:\n    print(\"None\")", "options": ["Even", "15", "None", "Divisible by 3"], "correct": "Divisible by 3", "explanation": "Since 15 is not even, Python moves to the elif, checks 15 % 3 == 0 (True), and runs that branch instead.", "prompt": "What does the following code print?"}, {"topic": 6, "code": "word = \"banana\"\nif \"a\" in word:\n    print(\"Found\")\nelse:\n    print(\"Not found\")", "options": ["a", "True", "Found", "Not found"], "correct": "Found", "explanation": "The in operator checks whether a substring exists anywhere inside another string \u2014 'a' is inside \"banana\".", "prompt": "What does the following code print?"}, {"topic": 6, "code": "x = 10\nif x == 10:\n    print(\"Ten\")\nelif x == 10:\n    print(\"Also Ten\")\nelse:\n    print(\"Not Ten\")", "options": ["Ten\nAlso Ten", "Ten", "Not Ten", "Also Ten"], "correct": "Ten", "explanation": "Once an if or elif condition is matched and its block runs, Python skips all remaining elif/else branches even if they'd also be True.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "for i in range(5):\n    print(i, end=\" \")", "options": ["1 2 3 4", "0 1 2 3 4", "0 1 2 3 4 5", "1 2 3 4 5"], "correct": "0 1 2 3 4", "explanation": "range(5) generates 0,1,2,3,4 \u2014 it starts at 0 and stops before the given number.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "for i in range(1, 6):\n    print(i, end=\" \")", "options": ["2 3 4 5 6", "1 2 3 4", "0 1 2 3 4 5", "1 2 3 4 5"], "correct": "1 2 3 4 5", "explanation": "range(1,6) starts at 1 and stops before 6, producing 1,2,3,4,5.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "for i in range(10, 0, -2):\n    print(i, end=\" \")", "options": ["10 9 8 7", "10 8 6 4 2 0", "10 8 6 4 2", "0 2 4 6 8 10"], "correct": "10 8 6 4 2", "explanation": "A negative step counts downward from the start value toward (but not including) the stop value: 10,8,6,4,2.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "count = 0\nwhile count < 5:\n    print(count, end=\" \")\n    count += 1", "options": ["0 1 2 3 4", "0 1 2 3 4 5", "5", "1 2 3 4 5"], "correct": "0 1 2 3 4", "explanation": "The while loop prints and increments count as long as count < 5, producing 0 through 4.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "for i in range(10):\n    if i == 5:\n        break\n    print(i, end=\" \")", "options": ["0 1 2 3 4", "0 1 2 3 4 5 6 7 8 9", "5", "0 1 2 3 4 5"], "correct": "0 1 2 3 4", "explanation": "break immediately exits the loop the moment i equals 5, so only 0\u20134 are printed before it stops.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "for i in range(5):\n    if i == 2:\n        continue\n    print(i, end=\" \")", "options": ["2", "0 1 3 4", "0 1 2 3 4", "0 1"], "correct": "0 1 3 4", "explanation": "continue skips the rest of that iteration's code (the print) but lets the loop carry on \u2014 so 2 is skipped while 0,1,3,4 print.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "for i in range(3):\n    for j in range(2):\n        print(i, j)", "options": ["0 1\n0 1\n0 1", "0 0\n0 1\n0 2", "0 0\n1 1\n2 2", "0 0\n0 1\n1 0\n1 1\n2 0\n2 1"], "correct": "0 0\n0 1\n1 0\n1 1\n2 0\n2 1", "explanation": "The nested loop runs the inner loop fully for each value of the outer loop, printing every (i,j) pair in order.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "total = 0\nfor i in range(1, 5):\n    total += i\nprint(total)", "options": ["6", "4", "15", "10"], "correct": "10", "explanation": "total accumulates the sum of i for each pass through the loop: 1+2+3+4 = 10.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "word = \"cat\"\nfor ch in word:\n    print(ch, end=\"-\")", "options": ["cat", "cat-", "c-a-t-", "c-a-t"], "correct": "c-a-t-", "explanation": "Iterating directly over a string yields each character one at a time, in order.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "x = 1\nwhile True:\n    print(x, end=\" \")\n    x += 1\n    if x > 4:\n        break", "options": ["1 2 3", "1 2 3 4 5", "4", "1 2 3 4"], "correct": "1 2 3 4", "explanation": "while True runs forever until the break condition (x>4) is met, after which the loop exits.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "for i in range(3):\n    print(\"Hi\")\nelse:\n    print(\"Done\")", "options": ["Hi\nDone\nHi\nDone\nHi\nDone", "Hi\nHi\nHi", "Hi\nHi\nHi\nDone", "Done"], "correct": "Hi\nHi\nHi\nDone", "explanation": "A for...else block's else clause runs automatically once the loop finishes normally (without hitting a break).", "prompt": "What does the following code print?"}, {"topic": 7, "code": "for i in range(0, 20, 5):\n    print(i, end=\" \")", "options": ["0 5 10 15 20", "0 5 10 15", "0 4 8 12 16", "5 10 15 20"], "correct": "0 5 10 15", "explanation": "range(0,20,5) starts at 0, increases by 5 each time, and stops before 20: 0,5,10,15.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "total = 0\nfor i in range(2):\n    for j in range(3):\n        total += 1\nprint(total)", "options": ["5", "6", "3", "2"], "correct": "6", "explanation": "The inner loop runs 3 times for each of the 2 outer iterations, adding 1 each time: 2 \u00d7 3 = 6.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "s = \"\"\nfor i in range(3):\n    s = s + str(i)\nprint(s)", "options": ["3", "012", "210", "0 1 2"], "correct": "012", "explanation": "Each loop iteration converts i to a string and appends it, building up the final string one character at a time.", "prompt": "What does the following code print?"}, {"topic": 7, "code": "Which of the following loops runs forever (infinite loop)?", "options": ["for i in range(5):\n    print(i)", "for i in range(0):\n    print(i)", "while False:\n    print(\"hi\")", "while True:\n    print(\"hi\")"], "correct": "while True:\n    print(\"hi\")", "explanation": "while True has no break statement inside it, so nothing ever stops the loop \u2014 it runs forever.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"Python\"\nprint(s[0])", "options": ["Error", "P", "n", "y"], "correct": "P", "explanation": "String indexing starts at 0, so s[0] is the first character.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"Python\"\nprint(s[-1])", "options": ["Error", "P", "n", "o"], "correct": "n", "explanation": "Negative indices count from the end; s[-1] is the last character.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"Python\"\nprint(s[1:4])", "options": ["hon", "yth", "Pyt", "ytho"], "correct": "yth", "explanation": "Slicing s[1:4] takes characters from index 1 up to (not including) index 4: 'y','t','h'.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"Python\"\nprint(s[:3])", "options": ["Pytho", "yth", "hon", "Pyt"], "correct": "Pyt", "explanation": "s[:3] takes characters from the start up to (not including) index 3: 'P','y','t'.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"Python\"\nprint(s[3:])", "options": ["Pyt", "on", "hon", "tho"], "correct": "hon", "explanation": "s[3:] takes characters from index 3 to the end of the string.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"Python\"\nprint(len(s))", "options": ["0", "5", "6", "7"], "correct": "6", "explanation": "len() counts the number of characters in the string.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"Hello\"\nprint(s.upper())", "options": ["HELLO", "Error", "Hello", "hello"], "correct": "HELLO", "explanation": ".upper() returns a new string with all letters converted to uppercase.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"HELLO\"\nprint(s.lower())", "options": ["HELLO", "hello", "Hello", "Error"], "correct": "hello", "explanation": ".lower() returns a new string with all letters converted to lowercase.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"  Hi  \"\nprint(s.strip())", "options": ["  Hi  ", " Hi", "Hi  ", "Hi"], "correct": "Hi", "explanation": ".strip() removes leading and trailing whitespace, but leaves internal characters untouched.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"Hello World\"\nprint(s.split())", "options": ["('Hello', 'World')", "Hello, World", "['Hello World']", "['Hello', 'World']"], "correct": "['Hello', 'World']", "explanation": ".split() with no arguments splits on any whitespace and returns a list of the resulting words.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"Hello\"\nprint(s.replace(\"l\", \"L\"))", "options": ["Hello", "HELLo", "HeLLo", "heLLo"], "correct": "HeLLo", "explanation": ".replace(old, new) returns a new string with every occurrence of old replaced by new.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"Hello\"\nprint(s[::-1])", "options": ["Error", "olleH", "Hello", "oellH"], "correct": "olleH", "explanation": "The slice s[::-1] uses a step of -1, which reverses the entire string.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"Hello\" + \" \" + \"World\"\nprint(s)", "options": ["HelloWorld", "Error", "Hello World", "Hello  World"], "correct": "Hello World", "explanation": "The + operator joins strings together end-to-end (concatenation).", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"abc\"\nprint(s * 2)", "options": ["Error", "ab cabc", "abc2", "abcabc"], "correct": "abcabc", "explanation": "The * operator on a string repeats its full content that many times.", "prompt": "What does the following code print?"}, {"topic": 8, "code": "s = \"Hello\"\nprint(s.find(\"l\"))", "options": ["-1", "0", "2", "3"], "correct": "2", "explanation": ".find() returns the index of the first occurrence of the substring \u2014 the first 'l' in \"Hello\" is at index 2.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "lst = [1, 2, 3]\nprint(lst[0])", "options": ["3", "1", "Error", "2"], "correct": "1", "explanation": "List indexing starts at 0, so lst[0] is the first element.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "lst = [1, 2, 3]\nlst.append(4)\nprint(lst)", "options": ["[1, 2, 3, 4]", "Error", "[4, 1, 2, 3]", "[1, 2, 3]"], "correct": "[1, 2, 3, 4]", "explanation": ".append() adds a new element to the end of the list.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "lst = [1, 2, 3]\nlst.remove(2)\nprint(lst)", "options": ["[1, 2, 3]", "[1, 3]", "[2]", "[1, 2]"], "correct": "[1, 3]", "explanation": ".remove(value) deletes the first matching value it finds in the list.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "lst = [3, 1, 2]\nlst.sort()\nprint(lst)", "options": ["[3, 1, 2]", "Error", "[1, 2, 3]", "[3, 2, 1]"], "correct": "[1, 2, 3]", "explanation": ".sort() rearranges the list's elements into ascending order in place.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "lst = [1, 2, 3]\nprint(len(lst))", "options": ["4", "2", "3", "0"], "correct": "3", "explanation": "len() returns the number of elements currently in the list.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "lst = [1, 2, 3, 4, 5]\nprint(lst[1:3])", "options": ["[2, 3, 4]", "[1, 2]", "[2, 3]", "[1, 2, 3]"], "correct": "[2, 3]", "explanation": "Slicing lst[1:3] takes elements from index 1 up to (not including) index 3.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "t = (1, 2, 3)\nprint(t[0])", "options": ["Error", "1", "2", "3"], "correct": "1", "explanation": "Tuple indexing works just like list indexing \u2014 t[0] is the first element.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "t = (1, 2, 3)\nt[0] = 5\nprint(t)", "options": ["IndexError", "(1, 2, 3)", "TypeError", "(5, 2, 3)"], "correct": "TypeError", "explanation": "Tuples are immutable, so attempting to change an element by index raises TypeError.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "d = {\"a\": 1, \"b\": 2}\nprint(d[\"a\"])", "options": ["1", "'a'", "2", "Error"], "correct": "1", "explanation": "Dictionary values are accessed using their key inside square brackets.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "d = {\"a\": 1}\nd[\"b\"] = 2\nprint(d)", "options": ["Error", "{'b': 2}", "{'a': 1}", "{'a': 1, 'b': 2}"], "correct": "{'a': 1, 'b': 2}", "explanation": "Assigning to a new key (d[\"b\"] = 2) adds that key-value pair to the dictionary.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "lst = [1, 2, 3]\nlst[1] = 99\nprint(lst)", "options": ["[1, 99, 3]", "[1, 2, 3]", "[99, 2, 3]", "Error"], "correct": "[1, 99, 3]", "explanation": "Assigning to an existing index (lst[1] = 99) replaces the value stored at that position.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "lst = [1, 2, 3]\nprint(3 in lst)", "options": ["3", "False", "Error", "True"], "correct": "True", "explanation": "The in operator checks whether a value exists anywhere within the list.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "d = {\"x\": 1, \"y\": 2}\nprint(list(d.keys()))", "options": ["['x', 'y']", "('x', 'y')", "[1, 2]", "['y', 'x']"], "correct": "['x', 'y']", "explanation": ".keys() returns all the dictionary's keys, in the order they were inserted.", "prompt": "What does the following code print?"}, {"topic": 9, "code": "lst = [1, 2] + [3, 4]\nprint(lst)", "options": ["[4, 6]", "[1, 2, [3, 4]]", "Error", "[1, 2, 3, 4]"], "correct": "[1, 2, 3, 4]", "explanation": "+ on two lists concatenates them into a single new list (it does not add element-wise).", "prompt": "What does the following code print?"}, {"topic": 9, "code": "lst = [1, 2, 2, 3]\nprint(lst.count(2))", "options": ["2", "1", "0", "3"], "correct": "2", "explanation": ".count(value) returns how many times that value appears in the list \u2014 2 appears twice.", "prompt": "What does the following code print?"}];
+const QUESTIONS2 = [
+  {
+    "topic": 1,
+    "prompt": "Complete the code to correctly print a message to the screen.",
+    "code": "_____(\"Hello, World!\")",
+    "options": [
+      "print",
+      "Print",
+      "PRINT",
+      "output"
+    ],
+    "correct": "print",
+    "explanation": "print() is the built-in function used to display output; Python is case-sensitive so only the lowercase spelling works."
+  },
+  {
+    "topic": 1,
+    "prompt": "Which of the following is a valid single-line comment in Python?",
+    "code": null,
+    "options": [
+      "# This is a comment",
+      "// This is a comment",
+      "/* This is a comment */",
+      "** This is a comment **"
+    ],
+    "correct": "# This is a comment",
+    "explanation": "Python uses # to start a comment; // and /* */ are comment styles from other languages like Java or C."
+  },
+  {
+    "topic": 1,
+    "prompt": "Complete the code so the output reads exactly: 5-3",
+    "code": "print(5, 3, _____=\"-\")",
+    "options": [
+      "sep",
+      "end",
+      "join",
+      "format"
+    ],
+    "correct": "sep",
+    "explanation": "The sep parameter controls what's printed between multiple arguments."
+  },
+  {
+    "topic": 1,
+    "prompt": "Which of the following code snippets will raise a NameError when run?",
+    "code": null,
+    "options": [
+      "print(total)",
+      "total = 5\nprint(total)",
+      "print(\"total\")",
+      "total = 5\nprint(\"total\")"
+    ],
+    "correct": "print(total)",
+    "explanation": "total is used before ever being assigned a value, so Python cannot find it and raises NameError."
+  },
+  {
+    "topic": 1,
+    "prompt": "Complete the code so only 'Result' is printed, and the calculation line is skipped entirely.",
+    "code": "_____ print(5 + 3)\nprint(\"Result\")",
+    "options": [
+      "#",
+      "//",
+      "\"\"",
+      "--"
+    ],
+    "correct": "#",
+    "explanation": "Adding # before the line turns it into a comment, so Python ignores it completely."
+  },
+  {
+    "topic": 1,
+    "prompt": "Which line correctly stores a whole number in a variable?",
+    "code": null,
+    "options": [
+      "age = 20",
+      "age = \"20\"",
+      "age = 20.0",
+      "age == 20"
+    ],
+    "correct": "age = 20",
+    "explanation": "20 without quotes and without a decimal point is a plain int literal; the others create a string, a float, or perform a comparison instead of an assignment."
+  },
+  {
+    "topic": 1,
+    "prompt": "Complete the code to check the data type of the variable x.",
+    "code": "x = 10\nprint(_____(x))",
+    "options": [
+      "type",
+      "kind",
+      "class",
+      "dtype"
+    ],
+    "correct": "type",
+    "explanation": "type() is the built-in function that returns an object's data type."
+  },
+  {
+    "topic": 1,
+    "prompt": "Which of the following will raise a SyntaxError?",
+    "code": null,
+    "options": [
+      "if True\n    print(\"Hi\")",
+      "if True:\n    print(\"Hi\")",
+      "print(\"Hi\") if True else print(\"Bye\")",
+      "x = True\nif x:\n    print(\"Hi\")"
+    ],
+    "correct": "if True\n    print(\"Hi\")",
+    "explanation": "An if statement's condition line must end with a colon \u2014 this one is missing it."
+  },
+  {
+    "topic": 1,
+    "prompt": "Complete the code so the output prints on two separate lines.",
+    "code": "print(\"Line1_____Line2\")",
+    "options": [
+      "\\n",
+      "\\t",
+      "\\l",
+      "/n"
+    ],
+    "correct": "\\n",
+    "explanation": "\\n is the newline escape character."
+  },
+  {
+    "topic": 1,
+    "prompt": "Which of the following programs runs without any error?",
+    "code": null,
+    "options": [
+      "print(\"Start\")\nprint(\"End\")",
+      "print(\"Start\")\n  print(\"End\")",
+      "print(\"Start\")\nPRINT(\"End\")",
+      "print(\"Start\")\nprint(\"End\""
+    ],
+    "correct": "print(\"Start\")\nprint(\"End\")",
+    "explanation": "The other options each break a Python rule: unexpected indentation, wrong case for a function name, and a missing closing parenthesis."
+  },
+  {
+    "topic": 2,
+    "prompt": "Complete the code to correctly calculate BMI (weight in kg divided by height in metres squared).",
+    "code": "weight = 70\nheight = 1.75\nbmi = weight / _____",
+    "options": [
+      "height ** 2",
+      "height * 2",
+      "height + 2",
+      "height - 2"
+    ],
+    "correct": "height ** 2",
+    "explanation": "BMI = weight \u00f7 (height\u00b2). height ** 2 squares the height, matching the real formula."
+  },
+  {
+    "topic": 2,
+    "prompt": "Complete the code to reduce x by 3.",
+    "code": "x = 10\n_____\nprint(x)",
+    "options": [
+      "x -= 3",
+      "x =- 3",
+      "x - 3",
+      "x == 3"
+    ],
+    "correct": "x -= 3",
+    "explanation": "-= is the augmented assignment operator for subtraction; x =- 3 is actually x = -3, a common typo trap."
+  },
+  {
+    "topic": 2,
+    "prompt": "Which of the following correctly assigns 5 to both a and b in one line?",
+    "code": null,
+    "options": [
+      "a = b = 5",
+      "a, b = 5",
+      "a; b = 5",
+      "a == b == 5"
+    ],
+    "correct": "a = b = 5",
+    "explanation": "Chained assignment lets one value be assigned to multiple variables at once."
+  },
+  {
+    "topic": 2,
+    "prompt": "Complete the code to calculate the average of a and b.",
+    "code": "a = 8\nb = 12\naverage = (a + b) _____ 2",
+    "options": [
+      "/",
+      "//",
+      "*",
+      "-"
+    ],
+    "correct": "/",
+    "explanation": "True division (/) is needed here since an average should be able to include decimals."
+  },
+  {
+    "topic": 2,
+    "prompt": "Which of the following correctly swaps the values of a and b?",
+    "code": null,
+    "options": [
+      "temp = a\na = b\nb = temp",
+      "a = b\nb = a",
+      "a, b = a, b",
+      "a = a\nb = b"
+    ],
+    "correct": "temp = a\na = b\nb = temp",
+    "explanation": "A temporary variable preserves a's original value before it gets overwritten. (Python's a, b = b, a shortcut also works, but wasn't offered here.)"
+  },
+  {
+    "topic": 2,
+    "prompt": "Complete the code to increase count by 1 each time.",
+    "code": "count = 0\ncount _____ 1",
+    "options": [
+      "+=",
+      "=+",
+      "++",
+      "=="
+    ],
+    "correct": "+=",
+    "explanation": "+= adds to the existing value; Python has no ++ increment operator, and =+ is just a positive sign typo."
+  },
+  {
+    "topic": 2,
+    "prompt": "Which expression evaluates to a float value of exactly 2.5?",
+    "code": null,
+    "options": [
+      "10 / 4",
+      "10 // 4",
+      "10 % 4",
+      "10 ** 4"
+    ],
+    "correct": "10 / 4",
+    "explanation": "/ performs true division and returns a float; // would floor it to 2, % gives the remainder 2, and ** is exponentiation."
+  },
+  {
+    "topic": 2,
+    "prompt": "Complete the code to calculate what percentage 'score' is out of 'total'.",
+    "code": "score = 45\ntotal = 60\npercentage = (score / total) _____ 100",
+    "options": [
+      "*",
+      "/",
+      "+",
+      "**"
+    ],
+    "correct": "*",
+    "explanation": "Dividing score by total gives a fraction; multiplying by 100 converts it into a percentage."
+  },
+  {
+    "topic": 2,
+    "prompt": "Which of the following is a valid Python variable name?",
+    "code": null,
+    "options": [
+      "total_score",
+      "2total",
+      "total-score",
+      "total score"
+    ],
+    "correct": "total_score",
+    "explanation": "Variable names can't start with a digit, contain hyphens, or contain spaces \u2014 underscores are the safe way to join words."
+  },
+  {
+    "topic": 2,
+    "prompt": "Complete the code to store the remainder when x is divided by y.",
+    "code": "x = 17\ny = 5\nremainder = x _____ y",
+    "options": [
+      "%",
+      "//",
+      "/",
+      "*"
+    ],
+    "correct": "%",
+    "explanation": "% is the modulus operator, returning the remainder of division."
+  },
+  {
+    "topic": 3,
+    "prompt": "Complete the code to convert the typed input into a whole number.",
+    "code": "age = _____(input(\"Enter age: \"))",
+    "options": [
+      "int",
+      "str",
+      "float",
+      "num"
+    ],
+    "correct": "int",
+    "explanation": "int() converts text into a whole number so it can be used in maths."
+  },
+  {
+    "topic": 3,
+    "prompt": "Complete the code to correctly display the BMI value inside the sentence using an f-string.",
+    "code": "bmi = 22.5\nprint(_____)",
+    "options": [
+      "f\"Your BMI is {bmi}\"",
+      "\"Your BMI is bmi\"",
+      "f\"Your BMI is bmi\"",
+      "print(bmi + \"Your BMI is\")"
+    ],
+    "correct": "f\"Your BMI is {bmi}\"",
+    "explanation": "An f-string needs the f prefix and curly braces {bmi} around the variable name to insert its value."
+  },
+  {
+    "topic": 3,
+    "prompt": "Which of the following prints AB on a single line (no space, no line break)?",
+    "code": null,
+    "options": [
+      "print(\"A\", end=\"\")\nprint(\"B\")",
+      "print(\"A\")\nprint(\"B\")",
+      "print(\"A\", \"B\")",
+      "print(\"A\" + \" \" + \"B\")"
+    ],
+    "correct": "print(\"A\", end=\"\")\nprint(\"B\")",
+    "explanation": "end=\"\" replaces the default newline after 'A', so 'B' continues immediately after it with nothing in between."
+  },
+  {
+    "topic": 3,
+    "prompt": "Complete the f-string format specifier so the value prints with exactly 2 decimal places.",
+    "code": "value = 3.14159\nprint(f\"{value:_____}\")",
+    "options": [
+      ".2f",
+      "2f",
+      ".2d",
+      "f2"
+    ],
+    "correct": ".2f",
+    "explanation": ":.2f is the format specifier for a fixed-point number rounded to 2 decimal places."
+  },
+  {
+    "topic": 3,
+    "prompt": "Which of the following correctly shows a prompt message and stores what the user types?",
+    "code": null,
+    "options": [
+      "name = input(\"Enter your name: \")",
+      "input(\"Enter your name: \") = name",
+      "name = input = \"Enter your name: \"",
+      "name(\"Enter your name: \")"
+    ],
+    "correct": "name = input(\"Enter your name: \")",
+    "explanation": "input(\"prompt\") displays the prompt and returns what the user typed, which is then assigned to name."
+  },
+  {
+    "topic": 3,
+    "prompt": "Complete the code to convert the typed input into a decimal number.",
+    "code": "height = _____(input(\"Enter height in m: \"))",
+    "options": [
+      "float",
+      "int",
+      "str",
+      "double"
+    ],
+    "correct": "float",
+    "explanation": "float() converts text into a decimal number; Python has no double type like some other languages."
+  },
+  {
+    "topic": 3,
+    "prompt": "Which of the following prints: Name: John, Age: 20",
+    "code": null,
+    "options": [
+      "print(\"Name:\", \"John,\", \"Age:\", 20)",
+      "print(\"Name:\" \"John,\" \"Age:\" 20)",
+      "print(\"Name:\", \"John,\" + \"Age:\", 20)",
+      "print(Name:, John, Age:, 20)"
+    ],
+    "correct": "print(\"Name:\", \"John,\", \"Age:\", 20)",
+    "explanation": "Comma-separated arguments print with a space between them, matching the target output exactly."
+  },
+  {
+    "topic": 3,
+    "prompt": "Complete the code to print the percentage value followed by a % sign, e.g. 75%.",
+    "code": "percentage = 75\nprint(f\"{percentage}_____\")",
+    "options": [
+      "%",
+      "%%",
+      "\\%",
+      "pct"
+    ],
+    "correct": "%",
+    "explanation": "Inside an f-string, a plain % is just a literal character (it only needs escaping in old %-style formatting, not f-strings)."
+  },
+  {
+    "topic": 3,
+    "prompt": "Which of the following will raise a TypeError when run?",
+    "code": null,
+    "options": [
+      "print(\"Score: \" + 100)",
+      "print(\"Score: \", 100)",
+      "print(\"Score: \" + str(100))",
+      "print(f\"Score: {100}\")"
+    ],
+    "correct": "print(\"Score: \" + 100)",
+    "explanation": "+ cannot directly join a string and an int \u2014 you'd need str(100) or a comma/f-string instead."
+  },
+  {
+    "topic": 3,
+    "prompt": "Complete the code so it correctly adds the two numbers the user enters.",
+    "code": "a = int(input())\nb = int(input())\nprint(a _____ b)",
+    "options": [
+      "+",
+      "and",
+      ",",
+      "&"
+    ],
+    "correct": "+",
+    "explanation": "Since both values were already converted to int, + performs numeric addition."
+  },
+  {
+    "topic": 4,
+    "prompt": "Complete the code to catch the error caused by dividing by zero.",
+    "code": "try:\n    print(10 / 0)\n_____ ZeroDivisionError:\n    print(\"Cannot divide by zero\")",
+    "options": [
+      "except",
+      "catch",
+      "else",
+      "finally"
+    ],
+    "correct": "except",
+    "explanation": "Python uses except (not catch, which is used in languages like Java) to handle a specific exception."
+  },
+  {
+    "topic": 4,
+    "prompt": "Which exception is raised by this code: int(\"abc\")?",
+    "code": null,
+    "options": [
+      "ValueError",
+      "TypeError",
+      "NameError",
+      "KeyError"
+    ],
+    "correct": "ValueError",
+    "explanation": "\"abc\" isn't a valid number, so int() raises ValueError."
+  },
+  {
+    "topic": 4,
+    "prompt": "Complete the code so 'Cleanup done' always prints, whether or not an error occurs.",
+    "code": "try:\n    print(1 / 1)\nexcept ZeroDivisionError:\n    print(\"Error\")\n_____:\n    print(\"Cleanup done\")",
+    "options": [
+      "finally",
+      "else",
+      "except",
+      "end"
+    ],
+    "correct": "finally",
+    "explanation": "The finally block always executes, no matter what happened in try or except."
+  },
+  {
+    "topic": 4,
+    "prompt": "Which of the following correctly catches an out-of-range list access?",
+    "code": null,
+    "options": [
+      "try:\n    lst = [1,2]\n    print(lst[5])\nexcept IndexError:\n    print(\"Out of range\")",
+      "try:\n    lst = [1,2]\n    print(lst[5])\nexcept KeyError:\n    print(\"Out of range\")",
+      "try:\n    lst = [1,2]\n    print(lst[5])\nexcept ValueError:\n    print(\"Out of range\")",
+      "lst = [1,2]\nprint(lst[5])\nexcept IndexError:\n    print(\"Out of range\")"
+    ],
+    "correct": "try:\n    lst = [1,2]\n    print(lst[5])\nexcept IndexError:\n    print(\"Out of range\")",
+    "explanation": "Accessing a list index that doesn't exist raises IndexError specifically, and except must be paired with a try block."
+  },
+  {
+    "topic": 4,
+    "prompt": "Complete the code so it raises an AssertionError when marks is below 0.",
+    "code": "marks = -5\n_____ marks >= 0, \"Marks cannot be negative\"",
+    "options": [
+      "assert",
+      "if",
+      "raise",
+      "check"
+    ],
+    "correct": "assert",
+    "explanation": "assert condition, message raises AssertionError with that message if the condition is False."
+  },
+  {
+    "topic": 4,
+    "prompt": "Which of the following runs without crashing, but gives a mathematically incorrect average due to operator precedence?",
+    "code": null,
+    "options": [
+      "a = 10\nb = 4\naverage = a + b / 2",
+      "a = 10\nb = 4\naverage = (a + b) / 2",
+      "a = 10\nb = 4\naverage = a / 2 + b / 2",
+      "a = 10\nb = 4\naverage = (a + b) / 2.0"
+    ],
+    "correct": "a = 10\nb = 4\naverage = a + b / 2",
+    "explanation": "Since / runs before +, this computes a + (b/2) = 12.0, not the intended average of a and b."
+  },
+  {
+    "topic": 4,
+    "prompt": "Complete the code so the more specific error is caught before the general one.",
+    "code": "try:\n    print([1,2][5])\nexcept _____:\n    print(\"Index error occurred\")\nexcept Exception:\n    print(\"Some other error\")",
+    "options": [
+      "IndexError",
+      "Exception",
+      "BaseException",
+      "Error"
+    ],
+    "correct": "IndexError",
+    "explanation": "Placing the specific IndexError first ensures it's the one that actually gets triggered and matched for this bug."
+  },
+  {
+    "topic": 4,
+    "prompt": "Which of the following is a runtime error (crashes only when that line actually executes), not a syntax error?",
+    "code": null,
+    "options": [
+      "print(10 / 0)",
+      "if True\n    print(\"Hi\")",
+      "for i in range(5)\n    print(i)",
+      "def greet(:\n    print(\"Hi\")"
+    ],
+    "correct": "print(10 / 0)",
+    "explanation": "This line is grammatically valid Python \u2014 the error only happens because of the value (0) when it actually runs; the others fail before running at all due to broken syntax."
+  },
+  {
+    "topic": 4,
+    "prompt": "Complete the code to print a friendly message instead of crashing when the user enters non-numeric text.",
+    "code": "try:\n    age = int(input(\"Enter age: \"))\nexcept _____:\n    print(\"Please enter a valid number\")",
+    "options": [
+      "ValueError",
+      "TypeError",
+      "IndexError",
+      "KeyError"
+    ],
+    "correct": "ValueError",
+    "explanation": "Converting non-numeric text with int() raises ValueError."
+  },
+  {
+    "topic": 4,
+    "prompt": "Which of the following correctly prints 'No error' only when the try block succeeds?",
+    "code": null,
+    "options": [
+      "try:\n    print(1/1)\nexcept ZeroDivisionError:\n    print(\"Error\")\nelse:\n    print(\"No error\")",
+      "try:\n    print(1/1)\nelse:\n    print(\"No error\")\nexcept ZeroDivisionError:\n    print(\"Error\")",
+      "try:\n    print(1/1)\nexcept ZeroDivisionError:\n    print(\"Error\")\nif:\n    print(\"No error\")",
+      "print(1/1)\nelse:\n    print(\"No error\")"
+    ],
+    "correct": "try:\n    print(1/1)\nexcept ZeroDivisionError:\n    print(\"Error\")\nelse:\n    print(\"No error\")",
+    "explanation": "else must come after all except clauses, and only runs if no exception was raised in try."
+  },
+  {
+    "topic": 5,
+    "prompt": "This is the 'Split the Bill' program from your labsheet. Complete the code so each person's share is calculated correctly.",
+    "code": "bill = float(input(\"Enter total bill amount ($): \"))\npeople = int(input(\"Enter number of people: \"))\nsplit = bill _____ people\nprint(\"Each person pays ($)\", split)",
+    "options": [
+      "/",
+      "*",
+      "+",
+      "-"
+    ],
+    "correct": "/",
+    "explanation": "Splitting a bill means dividing the total by the number of people. Using * here would be the classic logic-error bug shown in the labsheet \u2014 it runs without crashing but gives a hugely wrong answer."
+  },
+  {
+    "topic": 5,
+    "prompt": "In the 'Split the Bill' pseudocode, which step order is correct?",
+    "code": null,
+    "options": [
+      "1. Get total bill amount and number of people\n2. Divide total bill by number of people\n3. Display result",
+      "1. Divide total bill by number of people\n2. Get total bill amount and number of people\n3. Display result",
+      "1. Display result\n2. Get total bill amount and number of people\n3. Divide total bill by number of people",
+      "1. Get number of people\n2. Display result\n3. Get total bill amount\n4. Divide total bill by number of people"
+    ],
+    "correct": "1. Get total bill amount and number of people\n2. Divide total bill by number of people\n3. Display result",
+    "explanation": "Inputs must be collected before they're used in a calculation. Swapping the 'get' and 'divide' steps causes an error, since the number of people would still be unknown at the point of dividing."
+  },
+  {
+    "topic": 5,
+    "prompt": "This GST program applies a 7% tax. Complete the code so a $1605.00 price gives a GST Amount of $105 (approximately, before rounding).",
+    "code": "price = 1605.00\ngst = price _____ 0.07\nprint(\"GST Amount: $\", gst)",
+    "options": [
+      "*",
+      "/",
+      "+",
+      "-"
+    ],
+    "correct": "*",
+    "explanation": "Multiplying the price by the tax rate (7% = 0.07) calculates the GST amount owed."
+  },
+  {
+    "topic": 5,
+    "prompt": "Which scenario best demonstrates 'Decomposition', one of the four pillars of computational thinking?",
+    "code": null,
+    "options": [
+      "Breaking 'organise a birthday party' into smaller tasks: book venue, send invites, order cake, plan games",
+      "Noticing that organising a birthday party is similar to organising a company event",
+      "Deciding only the date and guest count matter, and ignoring the weather forecast",
+      "Writing the exact steps: call venue, confirm date, pay deposit"
+    ],
+    "correct": "Breaking 'organise a birthday party' into smaller tasks: book venue, send invites, order cake, plan games",
+    "explanation": "Decomposition means taking one complex problem and splitting it into smaller, more manageable pieces \u2014 exactly what this option does."
+  },
+  {
+    "topic": 5,
+    "prompt": "Which scenario best demonstrates 'Abstraction'?",
+    "code": null,
+    "options": [
+      "Deciding only the date and guest count matter for planning, and ignoring the weather forecast",
+      "Breaking the party planning into: book venue, send invites, order cake",
+      "Writing exact steps: call venue, confirm date, pay deposit",
+      "Noticing party planning is similar to planning a wedding"
+    ],
+    "correct": "Deciding only the date and guest count matter for planning, and ignoring the weather forecast",
+    "explanation": "Abstraction means focusing only on the details that matter and ignoring irrelevant information."
+  },
+  {
+    "topic": 5,
+    "prompt": "This running-total program (from your labsheet) sums the numbers from 0 to 9. Complete the code.",
+    "code": "total = 0\nfor i in range(10):\n    total = total _____\nprint(total)",
+    "options": [
+      "+ i",
+      "* i",
+      "- i",
+      "/ i"
+    ],
+    "correct": "+ i",
+    "explanation": "A running total is built by repeatedly adding each new number to the accumulator variable."
+  },
+  {
+    "topic": 5,
+    "prompt": "Complete the code so it correctly calculates the factorial of n.",
+    "code": "result = 1\nfor i in range(1, n+1):\n    result _____ i",
+    "options": [
+      "*=",
+      "+=",
+      "-=",
+      "/="
+    ],
+    "correct": "*=",
+    "explanation": "Factorial is a running product, so each step must multiply the accumulator by i."
+  },
+  {
+    "topic": 5,
+    "prompt": "Which of the following correctly finds the largest number in a list?",
+    "code": null,
+    "options": [
+      "largest = lst[0]\nfor n in lst:\n    if n > largest:\n        largest = n",
+      "largest = 0\nfor n in lst:\n    largest = n",
+      "largest = lst[0]\nfor n in lst:\n    largest = n",
+      "for n in lst:\n    if n > largest:\n        largest = n"
+    ],
+    "correct": "largest = lst[0]\nfor n in lst:\n    if n > largest:\n        largest = n",
+    "explanation": "This is the only version that starts from a real element in the list and only updates largest when a bigger value is actually found."
+  },
+  {
+    "topic": 5,
+    "prompt": "Complete the code to add up the digits of num.",
+    "code": "total = 0\nwhile num > 0:\n    total += num % 10\n    num = num _____ 10",
+    "options": [
+      "//",
+      "/",
+      "*",
+      "%"
+    ],
+    "correct": "//",
+    "explanation": "Floor division removes the last digit that was just extracted with %, moving on to the next digit."
+  },
+  {
+    "topic": 5,
+    "prompt": "Which of the following correctly implements one step of the Euclidean algorithm for GCD(a, b)?",
+    "code": null,
+    "options": [
+      "a, b = b, a % b",
+      "a, b = a % b, b",
+      "a, b = a + b, a - b",
+      "a, b = b, a"
+    ],
+    "correct": "a, b = b, a % b",
+    "explanation": "The Euclidean algorithm repeatedly replaces (a, b) with (b, a % b) until b becomes 0."
+  },
+  {
+    "topic": 6,
+    "prompt": "Complete the BMI classification code so it correctly categorises the bmi value.",
+    "code": "bmi = 22.5\nif bmi < 18.5:\n    category = \"Underweight\"\n_____ bmi < 25:\n    category = \"Normal\"\nelif bmi < 30:\n    category = \"Overweight\"\nelse:\n    category = \"Obese\"\nprint(category)",
+    "options": [
+      "elif",
+      "else if",
+      "elseif",
+      "if"
+    ],
+    "correct": "elif",
+    "explanation": "elif lets Python check the next condition only if the previous one was False, keeping all branches part of one connected chain. 'else if' and 'elseif' aren't valid Python keywords."
+  },
+  {
+    "topic": 6,
+    "prompt": "This is the grading program from your labsheet (80+ = A, 70-79 = B, 60-69 = C, below 50 = F). Complete the code so a score of 85 correctly prints 'B'.",
+    "code": "score = 85\nif score >= 90:\n    print(\"A\")\nelif score >= _____:\n    print(\"B\")\nelse:\n    print(\"C\")",
+    "options": [
+      "80",
+      "90",
+      "70",
+      "60"
+    ],
+    "correct": "80",
+    "explanation": "85 needs to fall into the elif branch, so the threshold must be 80 or below but still above the next tier's cutoff."
+  },
+  {
+    "topic": 6,
+    "prompt": "This is the loan qualification checker from your labsheet: a customer needs a minimum annual salary of 30000 AND at least 2 years on the job. Complete the code.",
+    "code": "salary = 32000\nyears = 3\nif salary >= 30000 _____ years >= 2:\n    print(\"Qualified for loan\")\nelse:\n    print(\"Not qualified\")",
+    "options": [
+      "and",
+      "or",
+      "not",
+      "&&"
+    ],
+    "correct": "and",
+    "explanation": "Both conditions must be true for the loan to be approved, so and is required \u2014 or would incorrectly approve someone who only meets one requirement."
+  },
+  {
+    "topic": 6,
+    "prompt": "This is the age-based ticket pricing example from your labsheet: kids under 6 get free entry regardless of the day. Complete the nested condition.",
+    "code": "age = 4\nday_type = \"weekend\"\nif age < 6:\n    price = 0\n_____:\n    if day_type == \"weekend\":\n        price = 88\n    else:\n        price = 50\nprint(price)",
+    "options": [
+      "else",
+      "elif",
+      "if",
+      "then"
+    ],
+    "correct": "else",
+    "explanation": "Since age already fully determines the free-entry case, the remaining logic (checking weekday vs weekend) is nested inside a plain else \u2014 this is the 'nested conditional statement' pattern from the labsheet."
+  },
+  {
+    "topic": 6,
+    "prompt": "Which of the following is an example of a nested if statement?",
+    "code": null,
+    "options": [
+      "if x > 0:\n    if y > 0:\n        print(\"Both positive\")",
+      "if x > 0:\n    print(\"Positive\")\nif y > 0:\n    print(\"Positive\")",
+      "if x > 0 and y > 0:\n    print(\"Both positive\")",
+      "if x > 0:\n    print(\"Positive\")\nelse:\n    print(\"Not positive\")"
+    ],
+    "correct": "if x > 0:\n    if y > 0:\n        print(\"Both positive\")",
+    "explanation": "A nested if is an if statement placed inside the body of another if \u2014 only this option has one if fully inside another."
+  },
+  {
+    "topic": 6,
+    "prompt": "This temperature classifier is from your labsheet's review questions. What will msg be after this code runs, given temp = 29?",
+    "code": "temp = 29\nif temp > 33:\n    msg = \"Hot\"\nif temp > 28:\n    msg = \"Warm\"\nif temp > 20:\n    msg = \"Cool\"\nprint(msg)",
+    "options": [
+      "Cool",
+      "Warm",
+      "Hot",
+      "Error"
+    ],
+    "correct": "Cool",
+    "explanation": "These are three separate if statements (not elif), so each True condition overwrites msg. Since 29 > 28 and 29 > 20 are both True (but 29 > 33 is False), msg ends up 'Warm' then gets overwritten to 'Cool' by the last check."
+  },
+  {
+    "topic": 6,
+    "prompt": "Which of the following is a valid ternary (conditional) expression?",
+    "code": null,
+    "options": [
+      "result = \"Even\" if x % 2 == 0 else \"Odd\"",
+      "result = if x % 2 == 0 \"Even\" else \"Odd\"",
+      "result = \"Even\" if x % 2 == 0",
+      "if x % 2 == 0 then result = \"Even\""
+    ],
+    "correct": "result = \"Even\" if x % 2 == 0 else \"Odd\"",
+    "explanation": "Python's ternary syntax is value_if_true if condition else value_if_false, all on one line."
+  },
+  {
+    "topic": 6,
+    "prompt": "Which of the following correctly checks if 'feb' is a month inside the list ['jan','feb','mar']?",
+    "code": null,
+    "options": [
+      "if \"feb\" in [\"jan\",\"feb\",\"mar\"]:",
+      "if [\"jan\",\"feb\",\"mar\"] in \"feb\":",
+      "if \"feb\" == [\"jan\",\"feb\",\"mar\"]:",
+      "if \"feb\".contains([\"jan\",\"feb\",\"mar\"]):"
+    ],
+    "correct": "if \"feb\" in [\"jan\",\"feb\",\"mar\"]:",
+    "explanation": "The in operator checks whether the left value exists inside the collection on the right."
+  },
+  {
+    "topic": 6,
+    "prompt": "Complete the code so it prints 'Not Found!' only when 'trix' does NOT appear inside s.",
+    "code": "s = \"matrix\"\nif \"trix\" in s:\n    print(\"Found!\")\n_____:\n    print(\"Not Found!\")",
+    "options": [
+      "else",
+      "elif",
+      "except",
+      "or"
+    ],
+    "correct": "else",
+    "explanation": "else runs whenever the if condition (the in check) is False \u2014 i.e. when the substring isn't found."
+  },
+  {
+    "topic": 6,
+    "prompt": "Which of the following can print MORE than one line when x = 20?",
+    "code": null,
+    "options": [
+      "if x > 10:\n    print(\"A\")\nif x > 15:\n    print(\"B\")",
+      "if x > 10:\n    print(\"A\")\nelif x > 15:\n    print(\"B\")",
+      "if x > 25:\n    print(\"A\")\nelif x > 15:\n    print(\"B\")",
+      "if x > 10:\n    print(\"A\")\nelse:\n    print(\"B\")"
+    ],
+    "correct": "if x > 10:\n    print(\"A\")\nif x > 15:\n    print(\"B\")",
+    "explanation": "Two separate if statements are each checked independently, so both can run; elif/else chains only ever run one branch."
+  },
+  {
+    "topic": 6,
+    "prompt": "Which of the following correctly checks that x is between 1 and 10 (exclusive) using a single chained comparison?",
+    "code": null,
+    "options": [
+      "if 1 < x < 10:",
+      "if 1 < x and 10:",
+      "if x < 1 or 10:",
+      "if 1 < x < 10 < x:"
+    ],
+    "correct": "if 1 < x < 10:",
+    "explanation": "Python supports chained comparisons directly: 1 < x < 10 is shorthand for (1 < x) and (x < 10)."
+  },
+  {
+    "topic": 7,
+    "prompt": "Which of the following is an example of a for loop?",
+    "code": null,
+    "options": [
+      "for i in range(4):\n    print(\"hi\")",
+      "while True:\n    print(\"hi\")",
+      "if i in range(4):\n    print(\"hi\")",
+      "def loop():\n    print(\"hi\")"
+    ],
+    "correct": "for i in range(4):\n    print(\"hi\")",
+    "explanation": "A for loop uses the keyword for followed by a variable and in a sequence like range(4); the others are a while loop, an if statement, and a function definition."
+  },
+  {
+    "topic": 7,
+    "prompt": "This is the 'iterate through a list' example from your labsheet. Complete the code so it prints a greeting for every name.",
+    "code": "name_list = [\"Tom\", \"Jay\", \"May\"]\nfor item _____ name_list:\n    print(\"Hello \" + item)",
+    "options": [
+      "in",
+      "of",
+      "from",
+      "="
+    ],
+    "correct": "in",
+    "explanation": "for item in name_list runs through each element of the list one at a time, storing it in item."
+  },
+  {
+    "topic": 7,
+    "prompt": "What does range(3, 9, 2) generate, as covered in your labsheet's range() examples?",
+    "code": null,
+    "options": [
+      "3, 5, 7",
+      "3, 5, 7, 9",
+      "3, 4, 5, 6, 7, 8",
+      "2, 4, 6, 8"
+    ],
+    "correct": "3, 5, 7",
+    "explanation": "range(start, stop, step) begins at 3, increases by 2 each time, and stops before 9 \u2014 giving 3, 5, 7."
+  },
+  {
+    "topic": 7,
+    "prompt": "Complete the code so it prints the numbers 1 through 10.",
+    "code": "for i in range(1, _____):\n    print(i)",
+    "options": [
+      "11",
+      "10",
+      "9",
+      "0"
+    ],
+    "correct": "11",
+    "explanation": "range(1, 11) stops before 11, so the last number produced is 10 \u2014 exactly what's needed."
+  },
+  {
+    "topic": 7,
+    "prompt": "Which of the following is an example of a while loop?",
+    "code": null,
+    "options": [
+      "while count < 5:\n    count += 1",
+      "for i in range(5):\n    print(i)",
+      "if count < 5:\n    count += 1",
+      "count += 1"
+    ],
+    "correct": "while count < 5:\n    count += 1",
+    "explanation": "A while loop repeats as long as its condition (count < 5) stays True \u2014 the keyword while is the giveaway."
+  },
+  {
+    "topic": 7,
+    "prompt": "This running-total program (from your labsheet) asks the user for a number and totals 1 up to that number. Complete the loop.",
+    "code": "num = int(input('Enter a number: '))\nsum = 0\nfor i in range(1, _____):\n    sum = sum + i\nprint(sum)",
+    "options": [
+      "num+1",
+      "num",
+      "num-1",
+      "num*2"
+    ],
+    "correct": "num+1",
+    "explanation": "To include num itself in the total, the range must stop one past it \u2014 range(1, num+1) is exactly the labsheet's fix."
+  },
+  {
+    "topic": 7,
+    "prompt": "Which of the following correctly stops the loop the moment i equals 5?",
+    "code": null,
+    "options": [
+      "for i in range(10):\n    if i == 5:\n        break\n    print(i)",
+      "for i in range(10):\n    if i == 5:\n        continue\n    print(i)",
+      "for i in range(10):\n    if i == 5:\n        pass\n    print(i)",
+      "for i in range(10):\n    print(i)\n    break"
+    ],
+    "correct": "for i in range(10):\n    if i == 5:\n        break\n    print(i)",
+    "explanation": "break exits the loop immediately when the condition is met \u2014 continue would only skip that one iteration, not stop the loop."
+  },
+  {
+    "topic": 7,
+    "prompt": "Complete the code so that the number 2 is skipped but the loop still continues through the rest.",
+    "code": "for i in range(5):\n    if i == 2:\n        _____\n    print(i)",
+    "options": [
+      "continue",
+      "break",
+      "pass",
+      "return"
+    ],
+    "correct": "continue",
+    "explanation": "continue skips the rest of the current iteration only, letting the loop carry on to the next value."
+  },
+  {
+    "topic": 7,
+    "prompt": "Complete the code so the loop eventually stops once x exceeds 4 (fixing this infinite loop).",
+    "code": "x = 1\nwhile True:\n    print(x)\n    x += 1\n    if x > 4:\n        _____",
+    "options": [
+      "break",
+      "continue",
+      "pass",
+      "stop"
+    ],
+    "correct": "break",
+    "explanation": "break is needed to actually exit a while True loop \u2014 without it, the loop would run forever, since the condition True never changes."
+  },
+  {
+    "topic": 7,
+    "prompt": "Complete the code so it counts down from 10 to 2 in steps of 2 (10, 8, 6, 4, 2).",
+    "code": "for i in range(10, 0, _____):\n    print(i)",
+    "options": [
+      "-2",
+      "2",
+      "-1",
+      "0"
+    ],
+    "correct": "-2",
+    "explanation": "A negative step makes range() count downward; -2 decreases by 2 each time, matching 10, 8, 6, 4, 2."
+  },
+  {
+    "topic": 8,
+    "prompt": "Complete the code to get the first letter of the string name.",
+    "code": "name = \"Alice\"\nfirst_letter = name[_____]",
+    "options": [
+      "0",
+      "1",
+      "-1",
+      "len(name)"
+    ],
+    "correct": "0",
+    "explanation": "String indexing starts at 0, so index 0 is always the first character."
+  },
+  {
+    "topic": 8,
+    "prompt": "This slicing example is from your labsheet: s = 'matrix'. Complete the code to correctly extract 'trix' (everything from index 2 to the end).",
+    "code": "s = \"matrix\"\npart = s[_____]",
+    "options": [
+      "2:",
+      "0:2",
+      ":2",
+      "2:4"
+    ],
+    "correct": "2:",
+    "explanation": "Omitting the end of a slice means it extracts all the way to the end of the string \u2014 s[2:] gives 'trix', matching the labsheet example exactly."
+  },
+  {
+    "topic": 8,
+    "prompt": "This reverse-slicing example is from your labsheet: s = 'matrix'. Complete the code to reverse the whole string.",
+    "code": "s = \"matrix\"\nreversed_s = s[_____]",
+    "options": [
+      "::-1",
+      "::1",
+      "-1:",
+      "1::"
+    ],
+    "correct": "::-1",
+    "explanation": "A slice step of -1 walks the string backward from end to start, reversing it \u2014 exactly as shown in the labsheet's slicing examples."
+  },
+  {
+    "topic": 8,
+    "prompt": "Complete the code to convert word to all uppercase letters.",
+    "code": "word = \"hello\"\nshout = word._____()",
+    "options": [
+      "upper",
+      "Upper",
+      "UPPER",
+      "toUpper"
+    ],
+    "correct": "upper",
+    "explanation": "upper() is the correct method name \u2014 Python method names are case-sensitive and lowercase here."
+  },
+  {
+    "topic": 8,
+    "prompt": "Which of the following correctly joins the two strings into 'matrix world' (labsheet's concatenation example)?",
+    "code": null,
+    "options": [
+      "a + ' ' + b",
+      "a ' ' b",
+      "a - b",
+      "a.append(b)"
+    ],
+    "correct": "a + ' ' + b",
+    "explanation": "+ concatenates strings together; strings don't have an append() method and - isn't a valid string operator."
+  },
+  {
+    "topic": 8,
+    "prompt": "Complete the code so it correctly checks whether the letter 'b' exists inside s (matching the labsheet's 'in' keyword example).",
+    "code": "s = \"matrix\"\nif \"b\" _____ s:\n    print(\"b is found.\")",
+    "options": [
+      "in",
+      "==",
+      "is",
+      "inside"
+    ],
+    "correct": "in",
+    "explanation": "The in operator checks whether a substring exists anywhere inside another string."
+  },
+  {
+    "topic": 8,
+    "prompt": "Complete the code so it correctly attempts to repeat the string 'ha ' three times (labsheet's * operator example).",
+    "code": "a = \"ha \"\nb = a _____ 3\nprint(b)",
+    "options": [
+      "*",
+      "+",
+      "**",
+      "x"
+    ],
+    "correct": "*",
+    "explanation": "The * operator on a string repeats its content that many times: 'ha ' * 3 gives 'ha ha ha '."
+  },
+  {
+    "topic": 8,
+    "prompt": "Which of the following will raise a TypeError, since strings are immutable (as shown in your labsheet)?",
+    "code": null,
+    "options": [
+      "a = \"Hello\"\na[1] = \"9\"",
+      "a = \"Hello\"\na = a + \"9\"",
+      "a = \"Hello\"\nprint(a[1])",
+      "a = \"Hello\"\nb = a.upper()"
+    ],
+    "correct": "a = \"Hello\"\na[1] = \"9\"",
+    "explanation": "Strings can't be changed in place \u2014 trying to assign directly to a character by index raises TypeError, exactly as the labsheet's immutability example demonstrates."
+  },
+  {
+    "topic": 8,
+    "prompt": "Complete the code to check whether the password has at least 8 characters.",
+    "code": "password = \"abc12345\"\nif _____(password) >= 8:\n    print(\"Valid length\")",
+    "options": [
+      "len",
+      "size",
+      "count",
+      "length"
+    ],
+    "correct": "len",
+    "explanation": "len() returns the number of characters in a string."
+  },
+  {
+    "topic": 8,
+    "prompt": "Which statement correctly reflects that strings are immutable?",
+    "code": null,
+    "options": [
+      "s = \"hi\"\ns.upper()\nprint(s)   # still prints 'hi'",
+      "s = \"hi\"\ns[0] = \"H\"\nprint(s)   # prints 'Hi'",
+      "s = \"hi\"\ns.upper()\nprint(s)   # prints 'HI'",
+      "s = \"hi\"\ns += \"!\"\nprint(s)   # still prints 'hi'"
+    ],
+    "correct": "s = \"hi\"\ns.upper()\nprint(s)   # still prints 'hi'",
+    "explanation": "Since strings can't be changed in place, calling .upper() without reassigning s leaves the original string exactly as it was."
+  },
+  {
+    "topic": 9,
+    "prompt": "This month list example is from your labsheet. Complete the code to correctly change the 6th item to 'June'.",
+    "code": "month = [\"jan\", \"feb\", \"mar\", \"apr\", \"may\", \"jun\"]\nmonth[_____] = \"June\"\nprint(month)",
+    "options": [
+      "5",
+      "6",
+      "4",
+      "-1 "
+    ],
+    "correct": "5",
+    "explanation": "The 6th item is at index 5, since indexing starts at 0. (Note: index -1 would also reach it, but wasn't offered as an exact match here.)"
+  },
+  {
+    "topic": 9,
+    "prompt": "Complete the code to add 'cherry' to the end of the fruits list.",
+    "code": "fruits = [\"apple\", \"banana\"]\nfruits._____(\"cherry\")",
+    "options": [
+      "append",
+      "add",
+      "insert",
+      "push"
+    ],
+    "correct": "append",
+    "explanation": "append() is the list method for adding a single item to the end; add() and push() are used in other languages/structures."
+  },
+  {
+    "topic": 9,
+    "prompt": "Which of the following correctly creates a dictionary storing a student's name and age?",
+    "code": null,
+    "options": [
+      "student = {\"name\": \"Sam\", \"age\": 20}",
+      "student = [\"name\": \"Sam\", \"age\": 20]",
+      "student = (\"name\", \"Sam\", \"age\", 20)",
+      "student = \"name\": \"Sam\", \"age\": 20"
+    ],
+    "correct": "student = {\"name\": \"Sam\", \"age\": 20}",
+    "explanation": "Dictionaries use curly braces with key: value pairs separated by commas."
+  },
+  {
+    "topic": 9,
+    "prompt": "Complete the code to correctly print the student's name.",
+    "code": "student = {\"name\": \"Sam\", \"age\": 20}\nprint(student[_____])",
+    "options": [
+      "\"name\"",
+      "name",
+      "'name':",
+      "[name]"
+    ],
+    "correct": "\"name\"",
+    "explanation": "Dictionary keys are accessed using their exact key value in square brackets \u2014 here the key is the string \"name\"."
+  },
+  {
+    "topic": 9,
+    "prompt": "Which of the following will raise a TypeError because tuples cannot be changed?",
+    "code": null,
+    "options": [
+      "t = (1, 2, 3)\nt[0] = 5",
+      "lst = [1, 2, 3]\nlst[0] = 5",
+      "t = (1, 2, 3)\nprint(t[0])",
+      "lst = [1, 2, 3]\nlst.append(4)"
+    ],
+    "correct": "t = (1, 2, 3)\nt[0] = 5",
+    "explanation": "Tuples are immutable, so trying to reassign an element by index raises TypeError; lists allow this freely since they're mutable."
+  },
+  {
+    "topic": 9,
+    "prompt": "This is your labsheet's 'check if item is in a list' example. Complete the code so it correctly checks if 'feb' is inside the month list.",
+    "code": "month = [\"jan\", \"feb\", \"mar\", \"apr\", \"may\", \"jun\"]\nif \"feb\" _____ month:\n    print(\"Found!\")",
+    "options": [
+      "in",
+      "==",
+      "is",
+      "inside"
+    ],
+    "correct": "in",
+    "explanation": "The in operator checks whether a value exists within a list, exactly as shown in the labsheet's example."
+  },
+  {
+    "topic": 9,
+    "prompt": "Which of the following correctly extracts just [20, 30] from the list [10, 20, 30, 40]?",
+    "code": null,
+    "options": [
+      "lst[1:3]",
+      "lst[1:2]",
+      "lst[0:2]",
+      "lst[2:4]"
+    ],
+    "correct": "lst[1:3]",
+    "explanation": "Index 1 is 20, and the slice goes up to (not including) index 3, capturing 20 and 30 exactly."
+  },
+  {
+    "topic": 9,
+    "prompt": "Complete the code to remove the value 'feb' from the month list (by content, not position).",
+    "code": "month = [\"jan\", \"feb\", \"mar\"]\nmonth._____(\"feb\")",
+    "options": [
+      "remove",
+      "delete",
+      "pop",
+      "discard"
+    ],
+    "correct": "remove",
+    "explanation": "remove(value) deletes the first matching value found in the list \u2014 this is 'delete by content', as opposed to pop() which deletes by position."
+  },
+  {
+    "topic": 9,
+    "prompt": "Complete the code to print how many items are in the shopping list.",
+    "code": "shopping_list = [\"milk\", \"eggs\", \"bread\"]\nprint(_____(shopping_list))",
+    "options": [
+      "len",
+      "size",
+      "count",
+      "length"
+    ],
+    "correct": "len",
+    "explanation": "len() works on lists too, returning the number of elements \u2014 the same function used for strings."
+  },
+  {
+    "topic": 9,
+    "prompt": "Which of the following correctly adds a new key 'grade' with value 'A' to the student dictionary?",
+    "code": null,
+    "options": [
+      "student[\"grade\"] = \"A\"",
+      "student.add(\"grade\", \"A\")",
+      "student[\"grade\"] == \"A\"",
+      "student.append(\"grade\", \"A\")"
+    ],
+    "correct": "student[\"grade\"] = \"A\"",
+    "explanation": "Assigning to a new key using square-bracket notation is how new key-value pairs are added to a dictionary."
+  }
+];
 
 const TOPIC_NOTES = {
 1: { title: "Introduction to Python Programming", concepts: [
@@ -1034,15 +2225,36 @@ const TOPIC_NOTES = {
 /* ---------------- State ---------------- */
 let selectedTopics = new Set(Object.keys(TOPIC_NAMES).map(Number));
 let questionCountMode = 30; // 15 | 30 | 9999(all)
+let activeSet = 1;
 let quizQueue = [];
 let currentIndex = 0;
 let score = 0;
 let userAnswers = []; // {q, chosen, correct}
 let answeredCurrent = false;
 
+const SET_DESCRIPTIONS = {
+  1: "Read the code and predict exactly what it prints or how it behaves.",
+  2: "Fill in the missing piece of code, or pick the snippet that correctly demonstrates a concept — includes some output-tracing too."
+};
+
+function getActivePool(){
+  return activeSet === 1 ? QUESTIONS : QUESTIONS2;
+}
+
 /* ---------------- Home screen setup ---------------- */
 const topicGrid = document.getElementById('topic-grid');
-function countForTopic(t){ return QUESTIONS.filter(q => q.topic === t).length; }
+function countForTopic(t){ return getActivePool().filter(q => q.topic === t).length; }
+
+document.querySelectorAll('#set-chip-1, #set-chip-2').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#set-chip-1, #set-chip-2').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    activeSet = Number(chip.dataset.set);
+    document.getElementById('set-description').textContent = SET_DESCRIPTIONS[activeSet];
+    renderTopicGrid();
+    updateSummary();
+  });
+});
 
 function renderTopicGrid(){
   topicGrid.innerHTML = '';
@@ -1083,7 +2295,7 @@ document.querySelectorAll('.mode-row .chip[data-count]').forEach(chip => {
 });
 
 function updateSummary(){
-  const pool = QUESTIONS.filter(q => selectedTopics.has(q.topic));
+  const pool = getActivePool().filter(q => selectedTopics.has(q.topic));
   const n = Math.min(pool.length, questionCountMode);
   document.getElementById('selected-summary').textContent =
     pool.length === 0 ? 'Select at least one topic' : `${n} question${n===1?'':'s'} from ${selectedTopics.size} topic${selectedTopics.size===1?'':'s'} (pool of ${pool.length})`;
@@ -1100,7 +2312,7 @@ function shuffle(arr){
 }
 
 document.getElementById('btn-start').addEventListener('click', () => {
-  const pool = shuffle(QUESTIONS.filter(q => selectedTopics.has(q.topic)));
+  const pool = shuffle(getActivePool().filter(q => selectedTopics.has(q.topic)));
   const n = Math.min(pool.length, questionCountMode);
   quizQueue = pool.slice(0, n);
   currentIndex = 0; score = 0; userAnswers = [];
@@ -1122,8 +2334,16 @@ function renderQuestion(){
   document.getElementById('q-total').textContent = quizQueue.length;
   document.getElementById('q-live-score').textContent = score;
   document.getElementById('progress-fill').style.width = (currentIndex / quizQueue.length * 100) + '%';
-  document.getElementById('q-code').textContent = q.code;
-  document.getElementById('q-fname').textContent = 'topic_' + q.topic + '_q' + (currentIndex+1) + '.py';
+  document.getElementById('q-question-text').textContent = q.prompt || 'What does the following code print?';
+
+  const codePanel = document.getElementById('q-code-panel');
+  if(q.code){
+    codePanel.style.display = '';
+    document.getElementById('q-code').textContent = q.code;
+    document.getElementById('q-fname').textContent = 'topic_' + q.topic + '_q' + (currentIndex+1) + '.py';
+  } else {
+    codePanel.style.display = 'none';
+  }
 
   const feedback = document.getElementById('q-feedback');
   feedback.className = 'feedback';
@@ -1166,8 +2386,11 @@ function selectOption(div, opt, q){
   feedback.classList.add('show', isCorrect ? 'good' : 'bad');
   const headline = isCorrect ? '✓ Correct!' : `✗ Not quite — correct answer: ${q.correct}`;
   const explanation = q.explanation ? `<div class="explain-box"><b>Why:</b> ${escapeHtml(q.explanation)}</div>` : '';
-  feedback.innerHTML = `<div>${escapeHtml(headline)}</div>${explanation}<button class="try-it-btn" id="q-try-it">▶ Try this code yourself</button>`;
-  document.getElementById('q-try-it').addEventListener('click', () => openInPlayground(q.code, 'quiz'));
+  const tryItBtn = q.code ? `<button class="try-it-btn" id="q-try-it">▶ Try this code yourself</button>` : '';
+  feedback.innerHTML = `<div>${escapeHtml(headline)}</div>${explanation}${tryItBtn}`;
+  if(q.code){
+    document.getElementById('q-try-it').addEventListener('click', () => openInPlayground(q.code, 'quiz'));
+  }
 
   document.getElementById('q-live-score').textContent = score;
   document.getElementById('btn-next').disabled = false;
@@ -1238,13 +2461,16 @@ function renderReview(){
   userAnswers.forEach((a, i) => {
     const div = document.createElement('div');
     div.className = 'review-item';
+    const codeBlock = a.q.code ? `<pre>${escapeHtml(a.q.code)}</pre>` : '';
+    const tryBtn = a.q.code ? `<button class="try-it-btn" data-code="${encodeURIComponent(a.q.code)}">▶ Try this code yourself</button>` : '';
     div.innerHTML = `
       <div class="rtag">Q${i+1} · Topic ${a.q.topic}: ${TOPIC_NAMES[a.q.topic]} ${a.correct ? '✓' : '✗'}</div>
-      <pre>${escapeHtml(a.q.code)}</pre>
+      <div class="concept-text" style="margin-bottom:8px;">${escapeHtml(a.q.prompt || 'What does the following code print?')}</div>
+      ${codeBlock}
       <div class="review-row ${a.correct ? 'correct' : 'you'}">Your answer: ${escapeHtml(a.chosen)}</div>
       ${a.correct ? '' : `<div class="review-row correct">Correct answer: ${escapeHtml(a.q.correct)}</div>`}
       ${a.q.explanation ? `<div class="explain-box" style="margin-top:8px;"><b>Why:</b> ${escapeHtml(a.q.explanation)}</div>` : ''}
-      <button class="try-it-btn" data-code="${encodeURIComponent(a.q.code)}">▶ Try this code yourself</button>
+      ${tryBtn}
     `;
     wrap.appendChild(div);
   });
